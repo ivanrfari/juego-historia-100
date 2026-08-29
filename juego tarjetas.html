@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1945: El Precio de la Victoria</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #game-container {
+            background-color: #fff;
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 5px solid #2c3e50;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #story-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        #story-text p {
+            margin-bottom: 15px;
+        }
+        .economic-note {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        button {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: left;
+        }
+        button:hover {
+            background-color: #2c3e50;
+        }
+        .btn-restart {
+            background-color: #e74c3c;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn-restart:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1>1945: EL PRECIO DE LA VICTORIA</h1>
+    <div class="subtitle">Simulador del Gabinete de Guerra Británico</div>
+    
+    <div id="story-text">
+        </div>
+    
+    <div id="choices-container" class="choices-container">
+        </div>
+</div>
+
+<script>
+    const storyData = {
+        inicio: {
+            text: `<p><strong>Londres, 1939.</strong></p>
+                   <p>Europa está al borde de la guerra. Alemania ha invadido Polonia.</p>
+                   <p>Ustedes forman parte del gobierno británico. No saben cuánto durará la guerra. No saben qué países entrarán. No saben quién ganará. Y, sobre todo: no conocen el futuro.</p>
+                   <p>Su tarea será tomar decisiones con la información disponible en cada momento. Una vez tomada la decisión, no podrán cambiarla.</p>`,
+            choices: [
+                { text: "Abrir el primer informe", next: "sit1" }
+            ]
+        },
+        sit1: {
+            text: `<p><strong>SITUACIÓN 1: "LA GUERRA COMIENZA" (Septiembre de 1939)</strong></p>
+                   <p>Alemania invade Polonia. El gobierno británico debe decidir cómo responder.</p>
+                   <p>¿Qué hace Gran Bretaña?</p>`,
+            choices: [
+                { text: "A: Declarar la guerra a Alemania. Entrar directamente en el conflicto.", next: "sobre1A" },
+                { text: "B: No declarar inmediatamente la guerra. Intentar la diplomacia.", next: "sobre1B" }
+            ]
+        },
+        sobre1A: {
+            text: `<p><strong>LA GUERRA HA COMENZADO</strong></p>
+                   <p>3 de septiembre de 1939. Gran Bretaña declara la guerra a Alemania. El país entra oficialmente en la Segunda Guerra Mundial.</p>
+                   <div class="economic-note"><strong>Consecuencia económica:</strong> El gobierno comienza a movilizar recursos para el conflicto. La producción militar empieza a adquirir cada vez mayor importancia.</div>`,
+            choices: [
+                { text: "Continuar a la siguiente situación", next: "sit2" }
+            ]
+        },
+        sobre1B: {
+            text: `<p><strong>UNA GUERRA EVITADA... POR AHORA</strong></p>
+                   <p>Gran Bretaña decide no declarar inmediatamente la guerra. Alemania continúa expandiéndose por Europa. La presión sobre el gobierno británico aumenta.</p>
+                   <p>Llega un nuevo momento crítico. ¿Qué deciden?</p>`,
+            choices: [
+                { text: "A: Si Alemania continúa expandiéndose, intervenir militarmente.", next: "sit2" },
+                { text: "B: Mantenerse definitivamente fuera del conflicto.", next: "final3" }
+            ]
+        },
+        sit2: {
+            text: `<p><strong>SITUACIÓN 2: "DUNKERQUE" (Mayo-junio de 1940)</strong></p>
+                   <p>Alemania avanza rápidamente por Europa occidental. Las fuerzas británicas están atrapadas en Francia.</p>
+                   <p>Llega un mensaje urgente: "Decenas de miles de soldados británicos están rodeados en Dunkerque."</p>
+                   <p>El Gabinete debe decidir:</p>`,
+            choices: [
+                { text: "A - EVACUAR: Retirar las tropas británicas y salvar a los soldados.", next: "sobre2A" },
+                { text: "B - RESISTIR: Mantener las tropas en Francia e intentar retrasar el avance.", next: "sobre2B" }
+            ]
+        },
+        sobre2A: {
+            text: `<p><strong>OPERACIÓN DYNAMO</strong></p>
+                   <p>Las fuerzas británicas son evacuadas. Una enorme cantidad de soldados consigue regresar a Gran Bretaña. Pero gran parte del equipamiento pesado queda atrás.</p>
+                   <div class="economic-note"><strong>Consecuencia económica:</strong> Gran Bretaña debe reconstruir y reequipar su ejército. Las fábricas reciben una presión cada vez mayor.</div>`,
+            choices: [
+                { text: "Continuar a la siguiente situación", next: "sit3" }
+            ]
+        },
+        sobre2B: {
+            text: `<p><strong>EL EJÉRCITO QUEDA ATRAPADO</strong></p>
+                   <p>La resistencia continúa, pero la situación empeora. Las pérdidas británicas aumentan considerablemente.</p>
+                   <p>¿Qué orden darán ahora?</p>`,
+            choices: [
+                { text: "A: Ordenar finalmente la evacuación.", next: "sit3" },
+                { text: "B: Continuar resistiendo hasta las últimas consecuencias.", next: "final3" }
+            ]
+        },
+        sit3: {
+            text: `<p><strong>SITUACIÓN 3: "GRAN BRETAÑA ESTÁ SOLA" (Verano-otoño de 1940)</strong></p>
+                   <p>Francia ha caído. Alemania amenaza Gran Bretaña. La Luftwaffe comienza a atacar objetivos británicos.</p>
+                   <p>Las fábricas necesitan producir armamento, pero la población también necesita alimentos y bienes.</p>`,
+            choices: [
+                { text: "A - LA GUERRA ES PRIORIDAD: Orientar recursos hacia armas y equipamiento.", next: "sobre3A" },
+                { text: "B - PROTEGER A LA POBLACIÓN: Mantener producción de bienes de consumo civil.", next: "sobre3B" }
+            ]
+        },
+        sobre3A: {
+            text: `<p><strong>MOVILIZACIÓN INDUSTRIAL</strong></p>
+                   <p>Las fábricas británicas reciben prioridad. La producción de aviones y armamento aumenta.</p>
+                   <div class="economic-note"><strong>Consecuencia económica:</strong> Los bienes destinados al consumo civil disminuyen. La población deberá aceptar mayores restricciones.</div>`,
+            choices: [
+                { text: "Continuar a la siguiente situación", next: "sit4" }
+            ]
+        },
+        sobre3B: {
+            text: `<p><strong>UNA ECONOMÍA MÁS CIVIL</strong></p>
+                   <p>La población mantiene acceso a bienes de consumo. Sin embargo, la producción militar crece muy lentamente y la presión sobre las defensas aumenta peligrosamente.</p>`,
+            choices: [
+                { text: "A: Cambiar la prioridad y aumentar rápidamente la producción militar.", next: "sit4" },
+                { text: "B: Mantener la prioridad civil, cueste lo que cueste.", next: "sit4_alt" }
+            ]
+        },
+        sit4: {
+            text: `<p><strong>SITUACIÓN 4: "LA BATALLA DEL ATLÁNTICO" (1941-1942)</strong></p>
+                   <p>Llegan alimentos, petróleo y recursos por vía marítima, pero los submarinos alemanes atacan los barcos.</p>
+                   <p>Mensaje alarmante: "Si disminuyen las importaciones, podríamos tener dificultades para alimentar a la población y mantener la industria."</p>`,
+            choices: [
+                { text: "A - DEBEMOS RACIONAR: Reducir y controlar el consumo interno.", next: "sobre4A" },
+                { text: "B - UTILICEMOS LAS RESERVAS: Mantener el consumo usando reservas.", next: "sobre4B" }
+            ]
+        },
+        sit4_alt: {
+            text: `<p><strong>SITUACIÓN 4: "LA BATALLA DEL ATLÁNTICO" (Crisis Inminente)</strong></p>
+                   <p>Al haber mantenido la prioridad civil, la capacidad defensiva está al límite. Ahora, los submarinos alemanes hunden los suministros marítimos.</p>`,
+            choices: [
+                { text: "A - DEBEMOS RACIONAR URGENTEMENTE.", next: "sobre4A" },
+                { text: "B - UTILIZAR LAS RESERVAS.", next: "sobre4B_irrecuperable" }
+            ]
+        },
+        sobre4A: {
+            text: `<p><strong>EL RACIONAMIENTO</strong></p>
+                   <p>El gobierno establece y amplía el sistema de racionamiento. La población debe aceptar restricciones sobre determinados productos.</p>
+                   <div class="economic-note"><strong>Consecuencia Histórica:</strong> Los recursos disponibles se distribuyen de manera más controlada. La economía civil queda fuertemente condicionada.</div>`,
+            choices: [
+                { text: "Continuar a la siguiente situación", next: "sit5" }
+            ]
+        },
+        sobre4B: {
+            text: `<p><strong>LAS RESERVAS SE AGOTAN</strong></p>
+                   <p>Durante un tiempo la población mantiene su consumo, pero las reservas disminuyen rápidamente. Llega otro mensaje: "Las reservas no serán suficientes."</p>`,
+            choices: [
+                { text: "A: Introducir finalmente el racionamiento.", next: "sit5" },
+                { text: "B: Continuar exprimiendo las reservas.", next: "sobre4B_irrecuperable" }
+            ]
+        },
+        sobre4B_irrecuperable: {
+            text: `<p><strong>COLAPSO DE SUMINISTROS</strong></p>
+                   <p>La escasez comienza a afectar seriamente al país. La incapacidad de sostener el ritmo industrial y civil debilita drásticamente el esfuerzo bélico.</p>`,
+            choices: [
+                { text: "Afrontar las consecuencias", next: "final3" }
+            ]
+        },
+        sit5: {
+            text: `<p><strong>SITUACIÓN 5: "¿CÓMO SOSTENEMOS LA GUERRA?" (1941)</strong></p>
+                   <p>El esfuerzo de guerra aumenta, pero los recursos propios son limitados.</p>
+                   <p>Llega un mensaje desde Washington: "Estados Unidos está dispuesto a proporcionar ayuda material a Gran Bretaña."</p>`,
+            choices: [
+                { text: "A - ACEPTAMOS LA AYUDA: Aceptar ampliamente el apoyo material estadounidense.", next: "sobre5A" },
+                { text: "B - RECURSOS PROPIOS: Intentar reducir la dependencia económica de otros países.", next: "sobre5B" }
+            ]
+        },
+        sobre5A: {
+            text: `<p><strong>ESTADOS UNIDOS AYUDA</strong></p>
+                   <p>Llegan alimentos, materias primas, vehículos y equipamiento. La capacidad para continuar la guerra aumenta, pero también la dependencia económica.</p>
+                   <p><strong>NUEVO ACONTECIMIENTO (7 de diciembre de 1941):</strong> Japón ataca Pearl Harbor. Estados Unidos entra en la guerra. El conflicto cambia de escala.</p>`,
+            choices: [
+                { text: "Avanzar al tramo final de la guerra", next: "sit6" }
+            ]
+        },
+        sobre5B: {
+            text: `<p><strong>GRAN BRETAÑA POR SUS PROPIOS MEDIOS</strong></p>
+                   <p>El gobierno intenta continuar la guerra solo con lo suyo. Al principio funciona, pero la presión económica se vuelve insostenible.</p>`,
+            choices: [
+                { text: "A: Aceptar finalmente la ayuda estadounidense.", next: "sit6" },
+                { text: "B: Continuar rechazándola por orgullo nacional.", next: "final3" }
+            ]
+        },
+        sit6: {
+            text: `<p><strong>SITUACIÓN 6: "EL ÚLTIMO ESFUERZO" (1944)</strong></p>
+                   <p>Los Aliados avanzan. Alemania empieza a retroceder tras Normandía. Pero Gran Bretaña lleva años de guerra y está económicamente agotada.</p>
+                   <p>El Gabinete recibe una última pregunta:</p>`,
+            choices: [
+                { text: "A - LLEGAR HASTA EL FINAL: Mantener el máximo esfuerzo militar hasta la victoria.", next: "final1" },
+                { text: "B - PREPARAR LA POSGUERRA: Reducir el esfuerzo bélico y acomodar la economía.", next: "final2" }
+            ]
+        },
+        final1: {
+            text: `<p><strong>MAYO DE 1945: VICTORIA HISTÓRICA</strong></p>
+                   <p>Alemania se rinde. Los Aliados han ganado la guerra en Europa.</p>
+                   <div class="economic-note">
+                   <p><strong>¿Y QUÉ QUEDÓ DESPUÉS DE LA VICTORIA?</strong></p>
+                   <p>Gran Bretaña ganó la guerra, pero a un precio altísimo: país profundamente endeudado, años de racionamiento soportado, economía completamente movilizada y dependencia total de EE.UU.</p>
+                   <p>La victoria militar no significó salir económicamente intactos. (Camino Histórico Real)</p>
+                   </div>`,
+            choices: [
+                { text: "Volver a jugar", next: "inicio", isRestart: true }
+            ]
+        },
+        final2: {
+            text: `<p><strong>LA GUERRA TERMINA, PERO EL PAÍS CAMBIA (VICTORIA ALTERNATIVA)</strong></p>
+                   <p>Alemania finalmente es derrotada y los Aliados ganan la guerra.</p>
+                   <p>Sin embargo, la preparación anticipada de la economía para la posguerra hizo que el país llegara a 1945 por un camino diferente al histórico.</p>
+                   <div class="economic-note">Ganaron la guerra, pero construyeron una línea temporal alternativa.</div>`,
+            choices: [
+                { text: "Volver a jugar", next: "inicio", isRestart: true }
+            ]
+        },
+        final3: {
+            text: `<p><strong>LA HISTORIA CAMBIÓ (DERROTA / PAZ NEGOCIADA)</strong></p>
+                   <p>Las decisiones acumuladas han debilitado demasiado la capacidad británica para continuar el conflicto. El país no puede sostener indefinidamente el esfuerzo militar.</p>
+                   <p>Gran Bretaña debe buscar una salida negociada o afrontar la derrota.</p>
+                   <div class="economic-note">Esta situación nunca ocurrió en la historia real, pero fue el camino que construyeron con sus decisiones (Historia Alternativa Irrecuperable).</div>`,
+            choices: [
+                { text: "Volver a intentar", next: "inicio", isRestart: true }
+            ]
+        }
+    };
+
+    const storyTextElement = document.getElementById('story-text');
+    const choicesContainer = document.getElementById('choices-container');
+
+    function renderNode(nodeId) {
+        const node = storyData[nodeId];
+        
+        // Actualizar el texto
+        storyTextElement.innerHTML = node.text;
+        
+        // Limpiar los botones anteriores
+        choicesContainer.innerHTML = '';
+        
+        // Crear los nuevos botones
+        node.choices.forEach(choice => {
+            const button = document.createElement('button');
+            button.innerText = choice.text;
+            
+            if (choice.isRestart) {
+                button.classList.add('btn-restart');
+            }
+            
+            button.addEventListener('click', () => {
+                renderNode(choice.next);
+            });
+            choicesContainer.appendChild(button);
+        });
+    }
+
+    // Iniciar el juego
+    renderNode('inicio');
+</script>
+
+</body>
+</html>
