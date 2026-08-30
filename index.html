@@ -155,7 +155,6 @@
 <body>
 
     <div id="game-container">
-        
         <div id="top-bar">
             <div class="stat-box"><div class="stat-label">MORAL CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral"></div></div></div>
             <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf"></div></div></div>
@@ -192,34 +191,25 @@
     </div>
 
 <script>
-// Imagen de repuesto (SVG embebido) si una foto histórica no carga
 const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="280">' +
     '<rect width="100%" height="100%" fill="#1a1a1a"/>' +
-    '<text x="50%" y="50%" fill="#8b0000" font-family="Georgia, serif" font-size="22" text-anchor="middle" dominant-baseline="middle">FOTOGRAFÍA NO DISPONIBLE</text>' +
+    '<text x="50%" y="50%" fill="#8b0000" font-family="Georgia, serif" font-size="22" text-anchor="middle" dominant-baseline="middle">FOTOGRAFÍA EN DECRIPTACIÓN</text>' +
     '</svg>'
 );
 
-// --- MOTOR DE AUDIO ---
-// Se crea de forma perezosa (recién en el primer sonido) y de forma segura:
-// crear un AudioContext apenas carga la página puede fallar por políticas
-// de autoplay del navegador, y si eso lanza un error aquí arriba, TODO
-// el script se corta y el juego queda roto por completo.
 let actx = null;
 function getAudioContext() {
     if (actx) return actx;
-    try {
-        actx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-        actx = false; // marcar como no disponible, sin volver a intentar
-    }
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } 
+    catch (e) { actx = false; }
     return actx;
 }
 
 function playSound(type) {
     try {
         const ctx = getAudioContext();
-        if (!ctx) return; // audio no disponible en este entorno, seguir sin sonido
+        if (!ctx) return; 
         if (ctx.state === 'suspended') ctx.resume().catch(()=>{});
         const osc = ctx.createOscillator(); const gain = ctx.createGain();
 
@@ -235,9 +225,7 @@ function playSound(type) {
             osc.connect(gain); gain.connect(ctx.destination);
             osc.start(); osc.stop(ctx.currentTime + 0.08);
         }
-    } catch (e) {
-        // Nunca dejar que un fallo de audio rompa el flujo del juego
-    }
+    } catch (e) {}
 }
 
 function enterFullScreen() {
@@ -247,16 +235,13 @@ function enterFullScreen() {
             if (docElm.requestFullscreen) docElm.requestFullscreen().catch(()=>{});
             else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
         }
-    } catch (e) {
-        // Si el entorno no permite pantalla completa (ej. iframes), seguir sin romper el juego
-    }
+    } catch (e) {}
 }
 
-// --- ESTADO MACROECONÓMICO ---
 let stats = { moral: 80, inf: 10, debt: 20, mil: 20 };
 let nextPhaseId = null;
 
-// --- ÁRBOL NARRATIVO ---
+// --- ÁRBOL NARRATIVO EXTENDIDO CON FINALES LOCOS ---
 const storyTree = {
     intro: {
         date: "MAYO 1940", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_As_Prime_Minister_1940-1945_MH26392.jpg", altHistory: false,
@@ -264,78 +249,134 @@ const storyTree = {
         text: "Europa ha caído. Gran Bretaña está sola frente a Alemania. Como Ministro de Hacienda, su tarea es financiar una guerra imposible.<br><br>Lord Halifax y la aristocracia proponen negociar un pacto de no agresión con Hitler para salvar la economía y el Imperio. Churchill exige reconvertir toda la industria civil para resistir a cualquier costo.",
         choices: [
             { title: "RECONVERSIÓN BÉLICA (Línea Histórica)", hint: "Destruye el PBI civil para fabricar armas.", impact: {moral: -10, inf: +20, debt: +20, mil: +30}, next: "blitz", news: "¡SANGRE, ESFUERZO, LÁGRIMAS Y SUDOR!", sub: "Churchill rechaza la paz. El país se prepara para el asedio." },
-            { title: "FIRMAR EL PACTO DE HALIFAX (Línea Alternativa)", hint: "Salva la economía, pero desarma al país.", impact: {moral: +20, inf: -10, debt: -10, mil: -20}, next: "alt_paz", news: "GRAN BRETAÑA FIRMA LA PAZ", sub: "El gobierno pacta con Alemania. La economía respira." }
+            { title: "FIRMAR EL PACTO DE HALIFAX (Línea Alternativa)", hint: "Salva la economía temporalmente.", impact: {moral: +20, inf: -10, debt: -10, mil: -20}, next: "alt_paz", news: "GRAN BRETAÑA FIRMA LA PAZ", sub: "El gobierno pacta con Alemania. La economía respira." }
         ]
     },
     
+    // --- RAMA HISTÓRICA ---
     blitz: {
         date: "SEPTIEMBRE 1940", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/WWII_London_Blitz_East_London.jpg", altHistory: false,
         title: "EL BLITZ Y LA INFLACIÓN",
-        text: "Londres está bajo fuego. Las fábricas trabajan 24/7 fabricando aviones, pero los bienes de consumo desaparecieron de los comercios. Al sobrar billetes y faltar productos, la <b>inflación se está descontrolando</b>.<br><br>John Maynard Keynes propone implementar un sistema de 'Ahorro Forzoso' confiscando parte del salario obrero para enfriar la economía.",
+        text: "Londres está bajo fuego. Las fábricas de bienes de consumo cerraron. Al sobrar billetes y faltar productos, la <b>inflación se está descontrolando</b>.<br><br>John Maynard Keynes propone implementar un sistema de 'Ahorro Forzoso' confiscando parte del salario obrero para enfriar la economía. Winston Churchill, desesperado, le muestra el expediente 'Operación Vegetariano': un arma biológica ultra-secreta.",
         choices: [
-            { title: "APLICAR AHORRO FORZOSO (Plan Keynes)", hint: "Baja la inflación, pero asfixia a la clase trabajadora.", impact: {moral: -25, inf: -30, debt: +10, mil: +10}, next: "lend_lease", news: "EL TESORO CONFISCA SALARIOS", sub: "El Plan Keynes se implementa por decreto para frenar la hiperinflación." },
-            { title: "IMPRIMIR BILLETES LIBREMENTE", hint: "Mantiene la paz social temporal. Explota la inflación.", impact: {moral: +10, inf: +45, debt: 0, mil: 0}, next: "lend_lease", news: "LA LIBRA SE DESPLOMA", sub: "Los precios se duplican en medio de los bombardeos." }
+            { title: "APLICAR AHORRO FORZOSO (Histórico)", hint: "Baja la inflación, asfixia al pueblo.", impact: {moral: -25, inf: -30, debt: +10, mil: +10}, next: "lend_lease", news: "EL TESORO CONFISCA SALARIOS", sub: "El Plan Keynes se implementa por decreto." },
+            { title: "AUTORIZAR OPERACIÓN VEGETARIANO (Alternativa)", hint: "Gasto en armas biológicas de bajo costo.", impact: {moral: -10, inf: +20, debt: 0, mil: +40}, next: "alt_guerra_biologica", news: "NUBES OSCURAS EN EL TESORO", sub: "El gobierno financia proyectos clasificados letales." }
         ]
     },
 
+    // --- RAMA ALTERNATIVA: PAZ ENGAÑOSA ---
     alt_paz: {
         date: "ENERO 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Lord_Halifax_1937.jpg", altHistory: true,
         title: "LA PAZ ENGAÑOSA",
-        text: "Al no haber guerra, el PBI británico florece. Las fábricas producen automóviles y bienes de lujo. La deuda pública ha bajado.<br><br>Sin embargo, Hitler ha conquistado toda Europa y el Norte de África. La inteligencia militar advierte que Alemania está reuniendo una flota de invasión en Francia para aniquilarnos. Nuestra capacidad industrial militar es inexistente.",
+        text: "Al no haber guerra, el PBI británico florece. Las fábricas producen automóviles y bienes de lujo. La deuda ha bajado.<br><br>Sin embargo, la inteligencia militar advierte que Alemania está reuniendo una flota de invasión en Francia para aniquilarnos de un golpe.",
         choices: [
-            { title: "DISFRUTAR DEL SUPERÁVIT CIVIL", hint: "Ignora las advertencias militares.", impact: {moral: +20, inf: 0, debt: -20, mil: -10}, next: "alt_traicion", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
+            { title: "ARMAR AL PAÍS EN SECRETO", hint: "Reencauza la historia. Despierta las sospechas de Berlín.", impact: {moral: -10, inf: +15, debt: +20, mil: +20}, next: "alt_traicion", news: "REARME SECRETO DESCUBIERTO", sub: "El pacto pende de un hilo." },
+            { title: "MANTENER LA ECONOMÍA CIVIL Y ESPERAR", hint: "Ignora a los militares. Aumenta el superávit.", impact: {moral: +20, inf: 0, debt: -20, mil: -20}, next: "alt_fascismo", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
         ]
+    },
+
+    alt_fascismo: {
+        date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_mosley_MP.jpg", altHistory: true,
+        title: "EL ESTADO TÍTERE",
+        text: "<b>FINAL LOCO:</b> Sin fuerzas armadas para defendernos, Alemania invadió Gran Bretaña sin resistencia. Oswald Mosley y la Unión Británica de Fascistas han tomado el poder en Londres bajo la tutela de Berlín.<br><br>Su economía de superávit ahora es expoliada para alimentar al Tercer Reich. Ha perdido el Imperio y la libertad.",
+        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL IMPERIO HA CAÍDO", sub: "Oswald Mosley jura lealtad a Berlín." }]
     },
 
     alt_traicion: {
         date: "NOVIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Heinkel_He_111_during_the_Battle_of_Britain.jpg", altHistory: true,
         title: "OPERACIÓN LEÓN MARINO",
-        text: "<b>¡TRAICIÓN!</b> Alemania ha roto el pacto de Halifax. La Luftwaffe está arrasando las fábricas de bienes civiles que nos negamos a militarizar. <br><br>El gobierno pacífico ha caído. Hemos sido arrastrados de nuevo a la historia, pero con una economía totalmente desprevenida para el conflicto. Debemos rogarle a Estados Unidos que nos salve.",
+        text: "<b>¡TRAICIÓN!</b> Alemania ha roto el pacto. La Luftwaffe está arrasando las fábricas. <br><br>El gobierno pacífico ha caído. Hemos sido arrastrados de nuevo a la historia, pero con una economía totalmente desprevenida para el conflicto. Debemos rogarle a Estados Unidos que nos salve.",
         choices: [
-            { title: "SUPLICAR AYUDA A WASHINGTON", hint: "Reencauza la historia. Impacto militar urgente. Deuda catastrófica.", impact: {moral: -40, inf: +30, debt: +60, mil: +30}, next: "beveridge", news: "¡TRAICIÓN NAZI!", sub: "El pacto era una trampa. Gran Bretaña, arrodillada, pide auxilio a EE.UU." }
+            { title: "SUPLICAR AYUDA A WASHINGTON", hint: "Reencauza la historia hacia el Lend-Lease.", impact: {moral: -40, inf: +30, debt: +60, mil: +30}, next: "lend_lease", news: "¡TRAICIÓN NAZI!", sub: "El pacto era una trampa. Gran Bretaña pide auxilio a EE.UU." }
         ]
     },
 
+    // --- RAMA ALTERNATIVA: GUERRA BIOLÓGICA ---
+    alt_guerra_biologica: {
+        date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island.jpg", altHistory: true,
+        title: "OPERACIÓN VEGETARIANO",
+        text: "El proyecto biológico está listo. Consiste en lanzar millones de pasteles de linaza infectados con Ántrax sobre los campos alemanes. Destruirá su agricultura y matará a millones, ganando la guerra sin gastar en tanques.<br><br>Los científicos advierten que las esporas podrían cruzar el canal y contaminar nuestro propio suministro de alimentos, quebrando la economía.",
+        choices: [
+            { title: "EJECUTAR BOMBARDEO CON ÁNTRAX", hint: "Peligro biológico extremo. Final Incierto.", impact: {moral: -50, inf: +50, debt: 0, mil: +80}, next: "alt_cuarentena", news: "LLUEVEN PASTELES EN ALEMANIA", sub: "La Royal Air Force despliega un arma nunca antes vista." },
+            { title: "CANCELAR Y PEDIR AYUDA A EE.UU.", hint: "Reencauza la historia. Se rinde a la deuda.", impact: {moral: +10, inf: 0, debt: +40, mil: -10}, next: "lend_lease", news: "EL GOBIERNO FRENA LA LOCURA", sub: "Churchill retrocede ante el terror del Ántrax y recurre a EE.UU." }
+        ]
+    },
+
+    alt_cuarentena: {
+        date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/British_gas_mask.jpg", altHistory: true,
+        title: "EL APOCALIPSIS SILENCIOSO",
+        text: "<b>FINAL LOCO:</b> La Operación Vegetariano aniquiló a Alemania en semanas. La guerra se ganó muy barata.<br><br>Pero los vientos cambiaron. El ántrax cruzó el Canal de la Mancha. Toda la ganadería británica murió. La inflación alimentaria llegó al 10.000%. Gran Bretaña ganó la guerra, pero la isla es un páramo tóxico e inhabitable. El gobierno ha huido a Canadá.",
+        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL REY HUYE A CANADÁ", sub: "Europa es declarada zona muerta por contaminación biológica." }]
+    },
+
+    // --- CONTINUACIÓN HISTÓRICA ---
     lend_lease: {
         date: "MARZO 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/President_Franklin_D._Roosevelt-1941.jpg", altHistory: false,
         title: "LA QUIEBRA DEL IMPERIO",
         text: "Nos hemos quedado sin Oro. EE.UU. ofrece salvarnos con el programa 'Lend-Lease', enviando armamento ilimitado.<br><br>El costo económico: exigen que liquidemos nuestras reservas extranjeras y desmantelemos nuestro monopolio comercial. Es el fin de la libra esterlina como moneda global y el paso de la hegemonía a Washington.",
         choices: [
-            { title: "ACEPTAR EL LEND-LEASE", hint: "El ejército se salva. La Deuda Externa se vuelve inmanejable.", impact: {moral: 0, inf: 0, debt: +40, mil: +40}, next: "beveridge", news: "ALIANZA DE PLATA", sub: "EE.UU. nos financia la guerra a cambio de nuestro dominio económico." },
-            { title: "RECHAZAR (Autarquía Imperial)", hint: "Protege la soberanía (Alt. History). Las tropas se quedan sin municiones.", impact: {moral: -15, inf: +20, debt: 0, mil: -35}, next: "alt_hambre", news: "ORGULLO IMPERIAL", sub: "Gran Bretaña peleará sola, sin dinero ni suministros extranjeros." }
+            { title: "ACEPTAR EL LEND-LEASE (Histórico)", hint: "El ejército se salva. La Deuda Externa se vuelve inmanejable.", impact: {moral: 0, inf: 0, debt: +40, mil: +40}, next: "mano_obra", news: "ALIANZA DE PLATA", sub: "EE.UU. nos financia la guerra a cambio de nuestro dominio económico." },
+            { title: "RECHAZAR (Autarquía Imperial)", hint: "Protege la soberanía. Las tropas se quedan sin municiones.", impact: {moral: -15, inf: +20, debt: 0, mil: -35}, next: "alt_hambre", news: "ORGULLO IMPERIAL", sub: "Gran Bretaña peleará sola, sin dinero ni suministros extranjeros." }
         ]
     },
 
+    // --- RAMA ALTERNATIVA: REVOLUCIÓN ---
     alt_hambre: {
         date: "ENERO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Rally_in_Hyde_Park_during_the_General_Strike_of_1926.jpg", altHistory: true,
         title: "COLAPSO DE LA AUTARQUÍA",
-        text: "Rechazar a EE.UU. fue un error logístico letal. Las colonias no pueden abastecernos solas. El pan está racionado a 100 gramos por semana. Las fábricas de tanques están detenidas por falta de acero.<br><br>Están estallando huelgas masivas y motines en la marina mercantil por el hambre. El gobierno está a punto de caer ante una revolución socialista.",
+        text: "Rechazar a EE.UU. fue un error logístico letal. El pan está racionado a 100 gramos por semana. Las fábricas de tanques están detenidas por falta de acero.<br><br>Están estallando huelgas masivas y motines en los puertos. Las ideas comunistas se esparcen por la hambruna. El gobierno está a punto de caer.",
         choices: [
-            { title: "CAPITULAR ANTE ESTADOS UNIDOS", hint: "Reencauza la historia. Acepta el rescate americano tarde y caro.", impact: {moral: -10, inf: 0, debt: +50, mil: +30}, next: "beveridge", news: "COLAPSO SOCIAL EVITADO", sub: "Ante los motines, el gobierno se rinde y acepta los dólares americanos." }
+            { title: "CAPITULAR ANTE ESTADOS UNIDOS", hint: "Reencauza la historia. Acepta el rescate americano.", impact: {moral: -10, inf: 0, debt: +60, mil: +30}, next: "mano_obra", news: "COLAPSO SOCIAL EVITADO", sub: "Ante los motines, el gobierno se rinde y acepta los dólares americanos." },
+            { title: "MANDAR AL EJÉRCITO A REPRIMIR", hint: "Intentar sofocar las huelgas con violencia.", impact: {moral: -50, inf: 0, debt: 0, mil: -20}, next: "alt_revolucion", news: "FUEGO EN LAS CALLES", sub: "El ejército dispara contra obreros hambrientos." }
+        ]
+    },
+
+    alt_revolucion: {
+        date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Raising_a_flag_over_the_Reichstag.jpg", altHistory: true,
+        title: "LA REVOLUCIÓN DE LONDRES",
+        text: "<b>FINAL LOCO:</b> El ejército se negó a disparar a sus compatriotas hambrientos y se unió a los huelguistas. Churchill ha sido derrocado. Se ha proclamado la República Socialista de Gran Bretaña y se ha firmado la paz incondicional con el Eje.<br><br>La macroeconomía capitalista ha dejado de existir en la isla.",
+        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "¡REVOLUCIÓN OBRERA!", sub: "La bandera roja ondea sobre el Palacio de Buckingham." }]
+    },
+
+    // --- CONTINUACIÓN HISTÓRICA ---
+    mano_obra: {
+        date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/A_woman_war_worker_machining_a_cylinder_block_for_a_Rolls_Royce_aero_engine._TR1141.jpg", altHistory: false,
+        title: "LA CRISIS DE MANO DE OBRA",
+        text: "La maquinaria financiera de EE.UU. nos da el acero, pero no quedan hombres para ensamblarlo. Las fábricas están operando al 40%. La solución macroeconómica es sancionar el reclutamiento laboral femenino obligatorio.<br><br>Forzar la inserción laboral aumenta drásticamente el PBI, pero rompe el tejido social conservador de la época.",
+        choices: [
+            { title: "RECLUTAMIENTO FEMENINO OBLIGATORIO", hint: "Aumenta la fuerza industrial y militar.", impact: {moral: -15, inf: 0, debt: 0, mil: +20}, next: "beveridge", news: "MUJERES AL FRENTE INDUSTRIAL", sub: "Millones son llamadas a las fábricas de municiones por decreto." }
         ]
     },
 
     beveridge: {
-        date: "DICIEMBRE 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/William-Henry-Beveridge-1st-Baron-Beveridge.jpg", altHistory: false,
-        title: "EL CONTRATO SOCIAL",
-        text: "Toda la población ha sufrido. Para evitar estallidos tras la guerra, el economista W. Beveridge propone crear el <b>Estado de Bienestar</b> (Salud y educación pública universal) para la posguerra.<br><br>Es financieramente irresponsable asumir estos gastos estando endeudados, pero es la única forma de recompensar a la clase obrera por la sangre derramada.",
+        date: "NOVIEMBRE 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/William-Henry-Beveridge-1st-Baron-Beveridge.jpg", altHistory: false,
+        title: "EL INFORME BEVERIDGE",
+        text: "La guerra ha igualado a las clases sociales. Para evitar rebeliones, William Beveridge propone crear el <b>Estado de Bienestar</b> (Salud y educación pública universal) en la posguerra.<br><br>Es financieramente irresponsable asumir estos gastos estando endeudados con EE.UU., pero es la única forma de recompensar a la clase obrera.",
         choices: [
-            { title: "FIRMAR EL INFORME BEVERIDGE", hint: "Sella la paz social a largo plazo. Consolida el déficit estructural.", impact: {moral: +45, inf: +15, debt: +25, mil: 0}, next: "d_day", news: "SALUD PÚBLICA PARA TODOS", sub: "El gobierno promete un Estado de Bienestar integral para la posguerra." },
+            { title: "FIRMAR EL INFORME BEVERIDGE", hint: "Sella la paz social a largo plazo. Consolida el déficit estructural.", impact: {moral: +45, inf: +10, debt: +25, mil: 0}, next: "d_day", news: "SALUD PÚBLICA PARA TODOS", sub: "El gobierno promete un Estado de Bienestar integral para la posguerra." },
             { title: "VETAR EL INFORME (Ortodoxia Fiscal)", hint: "Protege las cuentas del Estado. Destruye la moral popular.", impact: {moral: -35, inf: -10, debt: -15, mil: 0}, next: "d_day", news: "NO HAY DINERO PARA PROMESAS", sub: "El Ministro de Hacienda rechaza financiar un sistema de salud público." }
         ]
     },
 
     d_day: {
         date: "JUNIO 1944", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Into_the_Jaws_of_Death_23-0455M_edit.jpg", altHistory: false,
-        title: "EL ESFUERZO FINAL",
-        text: "Desembarco de Normandía. Liberar Europa requiere desviar absolutamente cada recurso industrial, tren y litro de combustible civil hacia el ejército.<br><br>Esta decisión económica extrema definirá la victoria militar, pero puede quebrar definitivamente la balanza comercial interna.",
+        title: "EL DÍA D Y EL FIN DE LA GUERRA",
+        text: "Alemania está retrocediendo. El Desembarco de Normandía (Día D) requiere un último sacrificio logístico. Poco después, Hitler cae y Europa es liberada.<br><br>Pero Stalin ha ocupado toda Europa del Este. Churchill, enojado, presenta un plan demente llamado <b>'Operación Impensable'</b>: atacar a la URSS mañana mismo con la economía hecha pedazos.",
         choices: [
-            { title: "MÁXIMO ESFUERZO FISCAL", hint: "Garantiza la victoria militar. Agota la economía.", impact: {moral: -15, inf: +20, debt: +15, mil: +40}, next: "final", news: "EL DÍA D HA COMENZADO", sub: "La mayor inversión militar de la historia cruza el Canal de la Mancha." }
+            { title: "ACEPTAR LA PAZ (Histórico)", hint: "Comienza la reconstrucción. Fin del juego.", impact: {moral: +20, inf: -10, debt: 0, mil: -10}, next: "final", news: "EL EJE SE RINDE", sub: "Europa en ruinas. Comienza una época de dura recuperación económica." },
+            { title: "APROBAR OPERACIÓN IMPENSABLE (Locura)", hint: "Tercera Guerra Mundial prematura. Destrucción total.", impact: {moral: -80, inf: +50, debt: +50, mil: +30}, next: "alt_impensable", news: "CHURCHILL ATACA A STALIN", sub: "Sin respiro, las tropas británicas reciben la orden de atacar Moscú." }
         ]
     },
 
+    alt_impensable: {
+        date: "AGOSTO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Yalta_Conference_1945_Churchill,_Stalin,_Roosevelt.jpg", altHistory: true,
+        title: "LA TERCERA GUERRA MUNDIAL",
+        text: "<b>FINAL LOCO:</b> La economía británica simplemente dejó de existir. No había fondos para abastecer a las tropas en Siberia. El Ejército Rojo repelió el ataque y marchó sobre Europa Occidental sin resistencia.<br><br>Gran Bretaña intentó usar las primeras armas atómicas, llevando a un holocausto global. El mundo terminó antes de la guerra fría.",
+        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL MUNDO EN LLAMAS", sub: "La economía colapsa mientras la Tercera Guerra Mundial arrasa Europa." }]
+    },
+
     final: {
-        date: "AGOSTO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_waves_to_crowds_in_Whitehall_in_London_as_they_celebrate_VE_Day,_8_May_1945._H41849.jpg", altHistory: false,
+        date: "JULIO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_waves_to_crowds_in_Whitehall_in_London_as_they_celebrate_VE_Day,_8_May_1945._H41849.jpg", altHistory: false,
         title: "EVALUACIÓN MACROECONÓMICA FINAL",
         text: "<div id='final-report'></div>",
         choices: [{ title: "CERRAR EXPEDIENTE", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE", sub: "Una nueva era económica comienza bajo el paradigma Keynesiano." }]
@@ -359,17 +400,17 @@ function buildReport() {
     let rep = "<p>La guerra ha concluido. El análisis macroeconómico de su gestión es el siguiente:</p><hr>";
     
     if(stats.mil >= 70) rep += "<p><b>ESTATUS BÉLICO: Súperpotencia.</b> El esfuerzo económico logró proveer una victoria militar aplastante.</p>";
-    else if (stats.mil >= 40) rep += "<p><b>ESTATUS BÉLICO: Victoria Dependiente.</b> Sobrevivimos, pero el peso real de la guerra fue financiado por el exterior.</p>";
+    else if (stats.mil >= 40) rep += "<p><b>ESTATUS BÉLICO: Victoria Dependiente.</b> Sobrevivimos, pero el peso de la guerra fue financiado por el exterior.</p>";
     else rep += "<p><b>ESTATUS BÉLICO: Colapso.</b> Las malas decisiones económicas dejaron al ejército inoperante. La isla quedó devastada.</p>";
 
     if(stats.inf >= 70) rep += "<p><b>INFLACIÓN: Hiperinflación.</b> La emisión descontrolada licuó los ahorros de toda la clase media y trabajadora.</p>";
     else rep += "<p><b>INFLACIÓN: Controlada.</b> Logró una hazaña histórica al financiar una guerra sin destruir el valor de la moneda local.</p>";
 
-    if(stats.debt >= 70) rep += "<p><b>DEUDA SOBERANA: Vasallaje Financiero.</b> El país queda atado por 50 años a la deuda estadounidense. Gran Bretaña ha perdido su imperio económico.</p>";
-    else rep += "<p><b>DEUDA SOBERANA: Sostenible.</b> Protegió las reservas de oro y la balanza de pagos. El país puede reconstruirse sin depender de potencias extranjeras.</p>";
+    if(stats.debt >= 70) rep += "<p><b>DEUDA SOBERANA: Vasallaje Financiero.</b> El país queda atado por 50 años a la deuda estadounidense. Ha perdido su imperio económico.</p>";
+    else rep += "<p><b>DEUDA SOBERANA: Sostenible.</b> Protegió las reservas de oro y la balanza de pagos. El país puede reconstruirse sin depender de potencias.</p>";
 
     if(stats.moral >= 70) rep += "<p><b>SOCIEDAD: El Nuevo Contrato.</b> El Estado de Bienestar está asegurado. La población está lista para trabajar en paz.</p>";
-    else rep += "<p><b>SOCIEDAD: Fractura Total.</b> La austeridad y el hambre han generado un caldo de cultivo para rebeliones sindicales inminentes.</p>";
+    else rep += "<p><b>SOCIEDAD: Fractura Total.</b> La austeridad y el hambre han generado un caldo de cultivo para rebeliones inminentes.</p>";
 
     return rep;
 }
@@ -382,9 +423,13 @@ function renderPhase(id) {
 
     document.getElementById('ui-date').innerText = p.date;
     document.getElementById('ui-title').innerText = p.title;
-    document.getElementById('ui-photo').src = p.photo;
     
-    // Tag de historia alternativa
+    let imgEl = document.getElementById('ui-photo');
+    let boxEl = document.getElementById('ui-photo-box');
+    boxEl.style.display = 'block'; 
+    imgEl.style.display = 'block';
+    imgEl.src = p.photo;
+    
     document.getElementById('alt-tag').style.display = p.altHistory ? "inline-block" : "none";
 
     if(id === "final") document.getElementById('ui-text').innerHTML = buildReport();
