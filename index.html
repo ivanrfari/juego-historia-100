@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Permite cargar imágenes externas bloqueadas por seguridad -->
     <meta name="referrer" content="no-referrer">
     <title>Gabinete Macroeconómico - Caminos Alternativos</title>
     <style>
@@ -64,6 +65,7 @@
             padding: 5px 10px; transform: rotate(-5deg); font-size: 1.1em; opacity: 0.7; z-index: 5;
         }
         
+        /* Indicador de Historia Alternativa */
         .alt-history-tag {
             background: #8b0000; color: #fff; font-family: 'Special Elite', cursive;
             padding: 5px 10px; display: inline-block; margin-bottom: 10px; font-size: 0.9em;
@@ -153,6 +155,7 @@
 <body>
 
     <div id="game-container">
+        
         <div id="top-bar">
             <div class="stat-box"><div class="stat-label">MORAL CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral"></div></div></div>
             <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf"></div></div></div>
@@ -168,14 +171,14 @@
                 <h1 id="ui-title"></h1>
                 
                 <div class="historical-photo-container" id="ui-photo-box">
-                    <!-- El onerror oculta la imagen si el proxy falla, para que el juego siga funcionando limpio -->
-                    <img id="ui-photo" class="historical-photo" src="" alt="Documento histórico" onerror="this.parentElement.style.display='none';">
+                    <img id="ui-photo" class="historical-photo" src="" alt="Documento histórico" referrerpolicy="no-referrer" crossorigin="anonymous">
                 </div>
 
                 <div class="body-text" id="ui-text"></div>
                 <div class="choices-container" id="choices-box"></div>
             </div>
         </div>
+
     </div>
 
     <!-- MODAL PERIÓDICO -->
@@ -221,12 +224,10 @@ function enterFullScreen() {
 let stats = { moral: 80, inf: 10, debt: 20, mil: 20 };
 let nextPhaseId = null;
 
-// PROXY DE IMÁGENES (wsrv.nl): Puentéalo todo para evitar errores CORS/Hotlinking de Wikipedia
-const proxy = "https://wsrv.nl/?url=";
-
+// --- ÁRBOL NARRATIVO ---
 const storyTree = {
     intro: {
-        date: "MAYO 1940", photo: proxy + "upload.wikimedia.org/wikipedia/commons/b/b8/Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg", altHistory: false,
+        date: "MAYO 1940", photo: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg", altHistory: false,
         title: "LA CAÍDA DE FRANCIA",
         text: "Europa ha caído. Gran Bretaña está sola frente a Alemania. Como Ministro de Hacienda, su tarea es financiar una guerra imposible.<br><br>Lord Halifax y la aristocracia proponen negociar un pacto de no agresión con Hitler para salvar la economía y el Imperio. Churchill exige reconvertir toda la industria civil para resistir a cualquier costo.",
         choices: [
@@ -236,7 +237,7 @@ const storyTree = {
     },
     
     blitz: {
-        date: "SEPTIEMBRE 1940", photo: proxy + "upload.wikimedia.org/wikipedia/commons/1/12/The_Blitz_during_the_Second_World_War_HU36220A.jpg", altHistory: false,
+        date: "SEPTIEMBRE 1940", photo: "https://upload.wikimedia.org/wikipedia/commons/1/12/The_Blitz_during_the_Second_World_War_HU36220A.jpg", altHistory: false,
         title: "EL BLITZ Y LA INFLACIÓN",
         text: "Londres está bajo fuego. Las fábricas trabajan 24/7 fabricando aviones, pero los bienes de consumo desaparecieron de los comercios. Al sobrar billetes y faltar productos, la <b>inflación se está descontrolando</b>.<br><br>John Maynard Keynes propone implementar un sistema de 'Ahorro Forzoso' confiscando parte del salario obrero para enfriar la economía.",
         choices: [
@@ -246,16 +247,16 @@ const storyTree = {
     },
 
     alt_paz: {
-        date: "ENERO 1941", photo: proxy + "upload.wikimedia.org/wikipedia/commons/4/4c/Lord_Halifax_cph.3b13993.jpg", altHistory: true,
+        date: "ENERO 1941", photo: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Lord_Halifax_cph.3b13993.jpg", altHistory: true,
         title: "LA PAZ ENGAÑOSA",
-        text: "Al no haber guerra, el PBI británico florece. Las fábricas producen automóviles y bienes de lujo. La deuda pública ha bajado.<br><br>Sin embargo, Hitler ha conquistado toda Europa. La inteligencia militar advierte que Alemania está reuniendo una flota de invasión en Francia para aniquilarnos. Nuestra capacidad industrial militar es inexistente.",
+        text: "Al no haber guerra, el PBI británico florece. Las fábricas producen automóviles y bienes de lujo. La deuda pública ha bajado.<br><br>Sin embargo, Hitler ha conquistado toda Europa y el Norte de África. La inteligencia militar advierte que Alemania está reuniendo una flota de invasión en Francia para aniquilarnos. Nuestra capacidad industrial militar es inexistente.",
         choices: [
             { title: "DISFRUTAR DEL SUPERÁVIT CIVIL", hint: "Ignora las advertencias militares.", impact: {moral: +20, inf: 0, debt: -20, mil: -10}, next: "alt_traicion", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
         ]
     },
 
     alt_traicion: {
-        date: "NOVIEMBRE 1941", photo: proxy + "upload.wikimedia.org/wikipedia/commons/8/87/Heinkel_He_111_during_the_Battle_of_Britain.jpg", altHistory: true,
+        date: "NOVIEMBRE 1941", photo: "https://upload.wikimedia.org/wikipedia/commons/8/87/Heinkel_He_111_during_the_Battle_of_Britain.jpg", altHistory: true,
         title: "OPERACIÓN LEÓN MARINO",
         text: "<b>¡TRAICIÓN!</b> Alemania ha roto el pacto de Halifax. La Luftwaffe está arrasando las fábricas de bienes civiles que nos negamos a militarizar. <br><br>El gobierno pacífico ha caído. Hemos sido arrastrados de nuevo a la historia, pero con una economía totalmente desprevenida para el conflicto. Debemos rogarle a Estados Unidos que nos salve.",
         choices: [
@@ -264,7 +265,7 @@ const storyTree = {
     },
 
     lend_lease: {
-        date: "MARZO 1941", photo: proxy + "upload.wikimedia.org/wikipedia/commons/4/4b/FDR_signs_Lend-Lease.jpg", altHistory: false,
+        date: "MARZO 1941", photo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/FDR_signs_Lend-Lease.jpg", altHistory: false,
         title: "LA QUIEBRA DEL IMPERIO",
         text: "Nos hemos quedado sin Oro. EE.UU. ofrece salvarnos con el programa 'Lend-Lease', enviando armamento ilimitado.<br><br>El costo económico: exigen que liquidemos nuestras reservas extranjeras y desmantelemos nuestro monopolio comercial. Es el fin de la libra esterlina como moneda global y el paso de la hegemonía a Washington.",
         choices: [
@@ -274,16 +275,16 @@ const storyTree = {
     },
 
     alt_hambre: {
-        date: "ENERO 1942", photo: proxy + "upload.wikimedia.org/wikipedia/commons/3/30/General_Strike_1926_-_Armoured_cars.jpg", altHistory: true,
+        date: "ENERO 1942", photo: "https://upload.wikimedia.org/wikipedia/commons/3/30/General_Strike_1926_-_Armoured_cars.jpg", altHistory: true,
         title: "COLAPSO DE LA AUTARQUÍA",
-        text: "Rechazar a EE.UU. fue un error logístico letal. Las colonias no pueden abastecernos solas. El pan está racionado a 100 gramos por semana. Las fábricas de tanques están detenidas por falta de acero.<br><br>Están estallando huelgas masivas y motines por el hambre. El gobierno está a punto de caer ante una revolución.",
+        text: "Rechazar a EE.UU. fue un error logístico letal. Las colonias no pueden abastecernos solas. El pan está racionado a 100 gramos por semana. Las fábricas de tanques están detenidas por falta de acero.<br><br>Están estallando huelgas masivas y motines en la marina mercantil por el hambre. El gobierno está a punto de caer ante una revolución socialista.",
         choices: [
             { title: "CAPITULAR ANTE ESTADOS UNIDOS", hint: "Reencauza la historia. Acepta el rescate americano tarde y caro.", impact: {moral: -10, inf: 0, debt: +50, mil: +30}, next: "beveridge", news: "COLAPSO SOCIAL EVITADO", sub: "Ante los motines, el gobierno se rinde y acepta los dólares americanos." }
         ]
     },
 
     beveridge: {
-        date: "DICIEMBRE 1942", photo: proxy + "upload.wikimedia.org/wikipedia/commons/1/1d/William_Beveridge%2C_1st_Baron_Beveridge.jpg", altHistory: false,
+        date: "DICIEMBRE 1942", photo: "https://upload.wikimedia.org/wikipedia/commons/1/1d/William_Beveridge%2C_1st_Baron_Beveridge.jpg", altHistory: false,
         title: "EL CONTRATO SOCIAL",
         text: "Toda la población ha sufrido. Para evitar estallidos tras la guerra, el economista W. Beveridge propone crear el <b>Estado de Bienestar</b> (Salud y educación pública universal) para la posguerra.<br><br>Es financieramente irresponsable asumir estos gastos estando endeudados, pero es la única forma de recompensar a la clase obrera por la sangre derramada.",
         choices: [
@@ -293,7 +294,7 @@ const storyTree = {
     },
 
     d_day: {
-        date: "JUNIO 1944", photo: proxy + "upload.wikimedia.org/wikipedia/commons/5/5e/Into_the_Jaws_of_Death_23-0453M_edit.jpg", altHistory: false,
+        date: "JUNIO 1944", photo: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Into_the_Jaws_of_Death_23-0453M_edit.jpg", altHistory: false,
         title: "EL ESFUERZO FINAL",
         text: "Desembarco de Normandía. Liberar Europa requiere desviar absolutamente cada recurso industrial, tren y litro de combustible civil hacia el ejército.<br><br>Esta decisión económica extrema definirá la victoria militar, pero puede quebrar definitivamente la balanza comercial interna.",
         choices: [
@@ -302,7 +303,7 @@ const storyTree = {
     },
 
     final: {
-        date: "AGOSTO 1945", photo: proxy + "upload.wikimedia.org/wikipedia/commons/c/c8/VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg", altHistory: false,
+        date: "AGOSTO 1945", photo: "https://upload.wikimedia.org/wikipedia/commons/c/c8/VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg", altHistory: false,
         title: "EVALUACIÓN MACROECONÓMICA FINAL",
         text: "<div id='final-report'></div>",
         choices: [{ title: "CERRAR EXPEDIENTE", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE", sub: "Una nueva era económica comienza bajo el paradigma Keynesiano." }]
@@ -349,14 +350,9 @@ function renderPhase(id) {
 
     document.getElementById('ui-date').innerText = p.date;
     document.getElementById('ui-title').innerText = p.title;
+    document.getElementById('ui-photo').src = p.photo;
     
-    // Mostramos la foto, pero si falla el proxy, la ocultamos sin error
-    let imgEl = document.getElementById('ui-photo');
-    let boxEl = document.getElementById('ui-photo-box');
-    boxEl.style.display = 'block'; 
-    imgEl.style.display = 'block';
-    imgEl.src = p.photo;
-    
+    // Tag de historia alternativa
     document.getElementById('alt-tag').style.display = p.altHistory ? "inline-block" : "none";
 
     if(id === "final") document.getElementById('ui-text').innerHTML = buildReport();
