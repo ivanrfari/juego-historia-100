@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gabinete Macroeconómico - Edición Documental</title>
+    <!-- ESTA LÍNEA ES LA MAGIA QUE PERMITE CARGAR IMÁGENES DE WIKIPEDIA SIN ERRORES DE SEGURIDAD -->
+    <meta name="referrer" content="no-referrer">
+    <title>Gabinete Macroeconómico - Caminos Alternativos</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap');
 
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background-color: #2c251f;
-            background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
+            background-color: #1e1b18;
+            background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 2px, transparent 2px, transparent 4px);
             font-family: 'Playfair Display', serif;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
-            user-select: none;
+            overflow: hidden; user-select: none;
         }
 
         #game-container {
@@ -23,129 +24,131 @@
             background: #111; box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
 
-        /* BARRA SUPERIOR DE ESTADÍSTICAS */
+        /* --- BARRA SUPERIOR DE ESTADÍSTICAS --- */
         #top-bar {
-            background: #1a1a1a; border-bottom: 2px solid #d4af37;
-            display: flex; justify-content: space-around; padding: 10px;
-            z-index: 10;
+            background: #151515; border-bottom: 2px solid #8b0000;
+            display: flex; justify-content: space-around; padding: 12px;
+            z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
         .stat-box { text-align: center; width: 22%; }
-        .stat-label { font-family: 'Special Elite', cursive; color: #a9a9a9; font-size: 0.8em; margin-bottom: 5px;}
-        .stat-bar { height: 15px; background: #333; border: 1px solid #555; border-radius: 2px; overflow: hidden; position: relative;}
-        .stat-fill { height: 100%; width: 50%; transition: width 0.5s, background-color 0.5s; }
+        .stat-label { font-family: 'Special Elite', cursive; color: #ccc; font-size: 0.85em; margin-bottom: 5px;}
+        .stat-bar { height: 12px; background: #222; border: 1px solid #444; border-radius: 2px; overflow: hidden; }
+        .stat-fill { height: 100%; width: 50%; transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.5s; }
         
         #fill-moral { background: #2ecc71; }
         #fill-inf { background: #e74c3c; }
-        #fill-debt { background: #e67e22; }
+        #fill-debt { background: #f39c12; }
         #fill-mil { background: #3498db; }
 
-        /* ÁREA DEL DOSSIER */
+        /* --- ÁREA DEL DOSSIER --- */
         #dossier-wrapper {
             flex: 1; padding: 20px; display: flex; justify-content: center; align-items: flex-start;
             overflow-y: auto; perspective: 1000px;
         }
 
         .paper {
-            background-color: #f4e9d8;
-            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/></svg>');
-            width: 90%; max-width: 700px; padding: 30px; box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
-            color: #222; position: relative;
-            transform-origin: top center;
-            animation: slideIn 0.5s ease-out;
-            margin-bottom: 20px;
+            background-color: #eaddc5;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.06"/></svg>');
+            width: 90%; max-width: 650px; padding: 35px; box-shadow: 5px 5px 20px rgba(0,0,0,0.6);
+            color: #222; position: relative; transform-origin: top center;
+            animation: slideIn 0.4s ease-out; margin-bottom: 30px; border-radius: 2px;
         }
 
         @keyframes slideIn {
-            from { transform: translateY(-50px) rotateX(10deg); opacity: 0; }
+            from { transform: translateY(-30px) rotateX(5deg); opacity: 0; }
             to { transform: translateY(0) rotateX(0deg); opacity: 1; }
         }
 
         .classification {
-            position: absolute; top: 20px; right: 20px;
-            font-family: 'Special Elite', cursive; color: #c0392b; border: 3px solid #c0392b;
-            padding: 5px 10px; transform: rotate(-5deg); font-size: 1.2em; opacity: 0.8;
-            z-index: 5;
+            position: absolute; top: 15px; right: 15px;
+            font-family: 'Special Elite', cursive; color: #8b0000; border: 3px solid #8b0000;
+            padding: 5px 10px; transform: rotate(-5deg); font-size: 1.1em; opacity: 0.7; z-index: 5;
         }
-
-        .date { font-family: 'Special Elite', cursive; font-size: 1.1em; color: #555; border-bottom: 1px dashed #777; padding-bottom: 5px; margin-bottom: 15px;}
-        h1 { font-size: 2em; margin-top: 0; margin-bottom: 15px; color: #111; line-height: 1.2;}
-        .body-text { font-size: 1.2em; line-height: 1.6; text-align: justify; margin-bottom: 20px;}
         
-        .economic-note {
-            background: rgba(0,0,0,0.05); border-left: 4px solid #2980b9;
-            padding: 10px 15px; font-style: italic; font-size: 1.1em; margin-bottom: 20px;
+        /* Indicador de Historia Alternativa */
+        .alt-history-tag {
+            background: #8b0000; color: #fff; font-family: 'Special Elite', cursive;
+            padding: 5px 10px; display: inline-block; margin-bottom: 10px; font-size: 0.9em;
+            box-shadow: 2px 2px 0px #222;
         }
 
+        .date { font-family: 'Special Elite', cursive; font-size: 1.2em; color: #444; border-bottom: 2px solid #555; padding-bottom: 5px; margin-bottom: 15px;}
+        h1 { font-size: 2.2em; margin-top: 0; margin-bottom: 15px; color: #111; line-height: 1.1;}
+        .body-text { font-size: 1.25em; line-height: 1.6; text-align: justify; margin-bottom: 25px;}
+        
         /* FOTOGRAFÍAS HISTÓRICAS */
         .historical-photo-container {
-            width: 100%; max-height: 250px; overflow: hidden;
-            margin-bottom: 20px; border: 6px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            background: #000; display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 280px; overflow: hidden;
+            margin-bottom: 25px; border: 8px solid #fdfdfd; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            background: #000; position: relative;
         }
         .historical-photo {
-            width: 100%; height: 100%; object-fit: cover; object-position: top;
-            filter: grayscale(100%) sepia(40%) contrast(1.3) brightness(0.9); 
+            width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
+            filter: grayscale(100%) sepia(30%) contrast(1.2) brightness(0.9); 
         }
 
-        /* BOTONES DE DECISIÓN ESTILO SELLO */
-        .choices-container { display: flex; flex-direction: column; gap: 15px; border-top: 2px solid #ccc; padding-top: 20px;}
+        /* --- BOTONES DE DECISIÓN --- */
+        .choices-container { display: flex; flex-direction: column; gap: 12px; border-top: 1px dashed #777; padding-top: 20px;}
         
         .decision-btn {
-            background: #fff; border: 2px solid #555; padding: 15px;
+            background: #fdfcf9; border: 1px solid #777; padding: 15px 20px;
             text-align: left; font-family: 'Playfair Display', serif; font-size: 1.2em;
             cursor: pointer; position: relative; overflow: hidden;
-            transition: all 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s; box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+            -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column;
         }
-        .decision-btn:hover { background: #f0f0f0; transform: translateX(5px); border-color: #111;}
-        .btn-title { font-weight: bold; display: block; margin-bottom: 5px;}
-        .btn-hint { font-size: 0.85em; font-family: 'Special Elite', cursive; color: #c0392b;}
+        .decision-btn:hover, .decision-btn:active { background: #111; color: #fff; border-color: #111; box-shadow: 1px 1px 0px rgba(0,0,0,0.5); transform: translate(2px, 2px);}
+        .btn-title { font-weight: bold; margin-bottom: 4px;}
+        .btn-hint { font-size: 0.85em; font-family: 'Special Elite', cursive; color: #8b0000;}
+        .decision-btn:hover .btn-hint { color: #e74c3c; }
 
-        /* EFECTO DE SELLO AL HACER CLIC */
+        /* EFECTO DE SELLO */
         .stamp-effect {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2) rotate(-15deg);
-            font-family: 'Special Elite', cursive; font-size: 3em; color: #c0392b; border: 4px solid #c0392b;
-            padding: 10px; opacity: 0; pointer-events: none;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2) rotate(-10deg);
+            font-family: 'Special Elite', cursive; font-size: 3.5em; color: #8b0000; border: 5px solid #8b0000;
+            padding: 10px; opacity: 0; pointer-events: none; z-index: 10; font-weight: bold;
         }
-        .stamp-animate { animation: stampDown 0.4s forwards; }
+        .stamp-animate { animation: stampDown 0.5s forwards; }
         @keyframes stampDown {
-            0% { transform: translate(-50%, -50%) scale(2) rotate(-15deg); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(2) rotate(-10deg); opacity: 0; }
+            40% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 0; }
         }
 
-        /* MODAL DE PERIÓDICO (FEEDBACK) */
+        /* --- MODAL DE PERIÓDICO --- */
         #newspaper-modal {
             position: fixed; top:0; left:0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 100;
         }
         .newspaper {
-            background: #e8dcc4; width: 90%; max-width: 600px; padding: 20px;
-            text-align: center; border: 10px solid double #333; box-shadow: 0 0 20px #000;
-            font-family: 'Playfair Display', serif; color: #222;
-            animation: spinZoom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #e1d5bc; width: 95%; max-width: 600px; padding: 30px 20px;
+            text-align: center; border: 8px solid #222; box-shadow: 0 0 30px #000;
+            font-family: 'Playfair Display', serif; color: #111;
+            animation: newspaperSpin 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes spinZoom {
-            0% { transform: scale(0.1) rotate(-720deg); opacity: 0; }
+        @keyframes newspaperSpin {
+            0% { transform: scale(0.1) rotate(-1080deg); opacity: 0; }
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
-        .news-header { font-size: 2.5em; border-bottom: 2px solid #222; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;}
-        .news-sub { font-size: 1.2em; font-style: italic; margin-bottom: 20px; }
-        .news-btn { background: #222; color: #fff; border: none; padding: 10px 20px; font-family: 'Special Elite', cursive; font-size: 1.2em; cursor: pointer; margin-top: 20px;}
+        .news-header { font-size: 2.8em; border-bottom: 3px solid #222; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; line-height: 1;}
+        .news-sub { font-size: 1.3em; font-style: italic; margin-bottom: 25px; }
+        .news-btn { background: #8b0000; color: #fff; border: 2px solid #550000; padding: 12px 25px; font-family: 'Special Elite', cursive; font-size: 1.2em; cursor: pointer; transition: 0.2s;}
+        .news-btn:active { transform: scale(0.95); }
 
         /* SCROLLBAR */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #666; border-radius: 4px; }
 
         @media (max-width: 600px) {
-            .paper { width: 95%; padding: 20px; }
-            h1 { font-size: 1.5em; }
-            .body-text { font-size: 1.1em; }
-            .decision-btn { font-size: 1.1em; padding: 10px;}
+            .paper { width: 100%; padding: 25px 20px; margin-bottom: 0;}
+            h1 { font-size: 1.8em; }
+            .body-text { font-size: 1.15em; }
+            .decision-btn { font-size: 1.1em; padding: 12px;}
             .stat-label { font-size: 0.65em; }
-            .news-header { font-size: 1.8em; }
-            .historical-photo-container { max-height: 180px; }
+            .news-header { font-size: 2em; }
+            .historical-photo-container { height: 200px; border-width: 4px;}
         }
     </style>
 </head>
@@ -154,19 +157,20 @@
     <div id="game-container">
         
         <div id="top-bar">
-            <div class="stat-box"><div class="stat-label">BIENESTAR CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral" style="width: 80%;"></div></div></div>
-            <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf" style="width: 10%;"></div></div></div>
-            <div class="stat-box"><div class="stat-label">DEUDA PÚBLICA</div><div class="stat-bar"><div class="stat-fill" id="fill-debt" style="width: 20%;"></div></div></div>
-            <div class="stat-box"><div class="stat-label">PODER MILITAR</div><div class="stat-bar"><div class="stat-fill" id="fill-mil" style="width: 20%;"></div></div></div>
+            <div class="stat-box"><div class="stat-label">MORAL CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral"></div></div></div>
+            <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf"></div></div></div>
+            <div class="stat-box"><div class="stat-label">DEUDA/DÉFICIT</div><div class="stat-bar"><div class="stat-fill" id="fill-debt"></div></div></div>
+            <div class="stat-box"><div class="stat-label">PODER MILITAR</div><div class="stat-bar"><div class="stat-fill" id="fill-mil"></div></div></div>
         </div>
 
         <div id="dossier-wrapper">
             <div class="paper" id="paper-doc">
-                <div class="classification">CONFIDENCIAL</div>
+                <div class="classification">TOP SECRET</div>
+                <div id="alt-tag" style="display:none;" class="alt-history-tag">⚠️ HISTORIA ALTERNATIVA</div>
                 <div class="date" id="ui-date"></div>
                 <h1 id="ui-title"></h1>
                 
-                <div class="historical-photo-container" id="ui-photo-box" style="display: none;">
+                <div class="historical-photo-container" id="ui-photo-box">
                     <img id="ui-photo" class="historical-photo" src="" alt="Documento histórico">
                 </div>
 
@@ -180,34 +184,32 @@
     <!-- MODAL PERIÓDICO -->
     <div id="newspaper-modal">
         <div class="newspaper">
-            <div style="font-family: 'Special Elite', cursive; font-size: 0.9em; margin-bottom: 5px;">THE LONDON TIMES</div>
-            <div class="news-header" id="news-headline">TITULAR AQUÍ</div>
-            <div class="news-sub" id="news-subhead">Subtítulo aquí</div>
-            <button class="news-btn" onclick="nextPhase()">LEER SIGUIENTE INFORME</button>
+            <div style="font-family: 'Special Elite', cursive; font-size: 1em; border-bottom: 1px solid #111; margin-bottom: 10px; padding-bottom: 5px;">THE LONDON TIMES</div>
+            <div class="news-header" id="news-headline">TITULAR</div>
+            <div class="news-sub" id="news-subhead">Subtítulo</div>
+            <button class="news-btn" onclick="nextPhase()">AVANZAR EN EL TIEMPO ➔</button>
         </div>
     </div>
 
 <script>
-// --- AUDIO ---
+// --- MOTOR DE AUDIO ---
 const actx = new (window.AudioContext || window.webkitAudioContext)();
-function playStamp() {
+function playSound(type) {
     if(actx.state === 'suspended') actx.resume();
     const osc = actx.createOscillator(); const gain = actx.createGain();
-    osc.type = 'square'; osc.frequency.setValueAtTime(100, actx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(10, actx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.5, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.1);
-    osc.connect(gain); gain.connect(actx.destination);
-    osc.start(); osc.stop(actx.currentTime + 0.1);
-}
-function playPaper() {
-    if(actx.state === 'suspended') actx.resume();
-    const osc = actx.createOscillator(); const gain = actx.createGain();
-    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, actx.currentTime);
-    gain.gain.setValueAtTime(0.1, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.05);
-    osc.connect(gain); gain.connect(actx.destination);
-    osc.start(); osc.stop(actx.currentTime + 0.05);
+    
+    if(type === 'stamp') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(120, actx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(20, actx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.6, actx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.15);
+        osc.connect(gain); gain.connect(actx.destination);
+        osc.start(); osc.stop(actx.currentTime + 0.15);
+    } else if(type === 'paper') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, actx.currentTime);
+        gain.gain.setValueAtTime(0.1, actx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.08);
+        osc.connect(gain); gain.connect(actx.destination);
+        osc.start(); osc.stop(actx.currentTime + 0.08);
+    }
 }
 
 function enterFullScreen() {
@@ -222,111 +224,127 @@ function enterFullScreen() {
 let stats = { moral: 80, inf: 10, debt: 20, mil: 20 };
 let nextPhaseId = null;
 
-// RUTAS CDN PÚBLICAS DE WIKIMEDIA (Garantizan la carga en GitHub Pages)
-const phases = [
-    {
-        id: "intro", date: "SEPTIEMBRE 1939", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg/800px-Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg",
-        title: "ECONOMÍA EN ESTADO DE EMERGENCIA",
-        text: "La guerra ha estallado. Como Ministro de Hacienda, su tarea es evitar que el país colapse. Cada libra gastada en armamento es una libra menos para la sociedad.<br><br><div class='economic-note'>La Macroeconomía no perdona: si imprime dinero sin control, la inflación destruirá los salarios. Si se endeuda demasiado, el país será esclavo de potencias extranjeras en la posguerra. Administre con cautela.</div>",
-        choices: [{ title: "ASUMIR EL CARGO", impact: null, next: "fase1", news: "EL GABINETE DE GUERRA TOMA EL CONTROL", sub: "La nación se prepara para el sacrificio financiero." }]
-    },
-    {
-        id: "fase1", date: "FEBRERO 1940", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/A_woman_worker_in_a_British_tank_factory_during_the_Second_World_War.jpg/800px-A_woman_worker_in_a_British_tank_factory_during_the_Second_World_War.jpg",
-        title: "LA RECONVERSIÓN INDUSTRIAL",
-        text: "Necesitamos cañones, no automóviles. El Ministerio de Suministros propone confiscar la producción civil privada y fijar controles de precios estrictos.<br><br>Los economistas advierten que congelar precios puede generar desabastecimiento, pero el mercado libre dejaría a los pobres sin comida.",
+// --- ÁRBOL NARRATIVO CON RAMIFICACIONES ---
+// Usando enlaces de Wikimedia Commons CDN. ¡Gracias a la etiqueta <meta name="referrer"> cargarán siempre!
+const storyTree = {
+    intro: {
+        date: "MAYO 1940", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg/800px-Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg", altHistory: false,
+        title: "LA CAÍDA DE FRANCIA",
+        text: "Europa ha caído. Gran Bretaña está sola frente a Alemania. Como Ministro de Hacienda, su tarea es financiar una guerra imposible.<br><br>Lord Halifax y la aristocracia proponen negociar un pacto de no agresión con Hitler para salvar la economía y el Imperio. Churchill exige reconvertir toda la industria civil para resistir a cualquier costo.",
         choices: [
-            { title: "CONTROL DE PRECIOS Y RACIONAMIENTO ESTRICTO", hint: "Contiene la inflación, sube poder militar, pero enoja a empresarios.", impact: {moral: -10, inf: -20, debt: +5, mil: +20}, next: "fase2", news: "RACIONAMIENTO: CARTILLAS PARA TODOS", sub: "El Estado asfixia el mercado para financiar la guerra." },
-            { title: "MANTENER MERCADO LIBRE (COMPRAS ESTATALES)", hint: "Protege la moral corporativa, pero dispara la inflación.", impact: {moral: +5, inf: +35, debt: +15, mil: +15}, next: "fase2", news: "PRECIOS POR LAS NUBES", sub: "La inflación golpea los bolsillos mientras el Estado compra armas." }
+            { title: "RECONVERSIÓN BÉLICA (Línea Histórica)", hint: "Destruye el PBI civil para fabricar armas.", impact: {moral: -10, inf: +20, debt: +20, mil: +30}, next: "blitz", news: "¡SANGRE, ESFUERZO, LÁGRIMAS Y SUDOR!", sub: "Churchill rechaza la paz. El país se prepara para el asedio." },
+            { title: "FIRMAR EL PACTO DE HALIFAX (Línea Alternativa)", hint: "Salva la economía, pero desarma al país.", impact: {moral: +20, inf: -10, debt: -10, mil: -20}, next: "alt_paz", news: "GRAN BRETAÑA FIRMA LA PAZ", sub: "El gobierno pacta con Alemania. La economía respira." }
         ]
     },
-    {
-        id: "fase2", date: "AGOSTO 1940", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/John_Maynard_Keynes.jpg/800px-John_Maynard_Keynes.jpg",
-        title: "FINANCIAMIENTO: EL PLAN KEYNES",
-        text: "La guerra está vaciando el tesoro. John Maynard Keynes propone el 'Ahorro Forzoso' (Deferred Pay): descontar obligatoriamente parte del salario a los trabajadores hoy, para devolvérselo al terminar la guerra.<br><br><div class='economic-note'>Retirar liquidez del mercado ahora frenará la inflación, pero es una medida extremadamente impopular. La alternativa es simplemente imprimir más billetes.</div>",
+    
+    // RUTA HISTÓRICA
+    blitz: {
+        date: "SEPTIEMBRE 1940", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/The_Blitz_during_the_Second_World_War_HU36220A.jpg/800px-The_Blitz_during_the_Second_World_War_HU36220A.jpg", altHistory: false,
+        title: "EL BLITZ Y LA INFLACIÓN",
+        text: "Londres está bajo fuego. Las fábricas trabajan 24/7 fabricando aviones, pero los bienes de consumo desaparecieron de los comercios. Al sobrar billetes y faltar productos, la <b>inflación se está descontrolando</b>.<br><br>John Maynard Keynes propone implementar un sistema de 'Ahorro Forzoso' confiscando parte del salario obrero para enfriar la economía.",
         choices: [
-            { title: "APLICAR AHORRO FORZOSO (Plan Keynes)", hint: "Baja la inflación drásticamente, pero la gente sufre hoy.", impact: {moral: -25, inf: -30, debt: +10, mil: 0}, next: "fase3", news: "¡SALARIOS RECORTADOS POR LEY!", sub: "El Tesoro retiene el sueldo de los trabajadores 'para el futuro'." },
-            { title: "EMITIR MONEDA (Rechazar a Keynes)", hint: "Mantiene la paz social temporal, pero la inflación se descontrola.", impact: {moral: +10, inf: +40, debt: 0, mil: 0}, next: "fase3", news: "LA MÁQUINA DE IMPRIMIR BILLETES NO FRENA", sub: "El dinero pierde su valor semana a semana." }
+            { title: "APLICAR AHORRO FORZOSO (Plan Keynes)", hint: "Baja la inflación, pero asfixia a la clase trabajadora.", impact: {moral: -25, inf: -30, debt: +10, mil: +10}, next: "lend_lease", news: "EL TESORO CONFISCA SALARIOS", sub: "El Plan Keynes se implementa por decreto para frenar la hiperinflación." },
+            { title: "IMPRIMIR BILLETES LIBREMENTE", hint: "Mantiene la paz social temporal. Explota la inflación.", impact: {moral: +10, inf: +45, debt: 0, mil: 0}, next: "lend_lease", news: "LA LIBRA SE DESPLOMA", sub: "Los precios se duplican en medio de los bombardeos." }
         ]
     },
-    {
-        id: "fase3", date: "MARZO 1941", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/FDR_signs_Lend-Lease.jpg/800px-FDR_signs_Lend-Lease.jpg",
-        title: "EL COSTO DEL PRÉSTAMO Y ARRIENDO",
-        text: "Nos hemos quedado sin Oro. EE.UU. ofrece salvarnos con el programa 'Lend-Lease' enviando tanques y comida ilimitada.<br><br>A cambio, exigen que liquidemos nuestras reservas extranjeras y aceptemos el libre comercio en la posguerra, destruyendo el monopolio económico de nuestro Imperio.",
+
+    // RUTA ALTERNATIVA A
+    alt_paz: {
+        date: "ENERO 1941", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Lord_Halifax_cph.3b13993.jpg/800px-Lord_Halifax_cph.3b13993.jpg", altHistory: true,
+        title: "LA PAZ ENGAÑOSA",
+        text: "Al no haber guerra, el PBI británico florece. Las fábricas producen automóviles y bienes de lujo. La deuda pública ha bajado.<br><br>Sin embargo, Hitler ha conquistado toda Europa y el Norte de África. La inteligencia militar advierte que Alemania está reuniendo una flota de invasión en Francia para aniquilarnos. Nuestra capacidad industrial militar es inexistente.",
         choices: [
-            { title: "ACEPTAR (Firmar la dependencia de EE.UU.)", hint: "Salva el esfuerzo militar. Dispara la deuda externa a niveles récord.", impact: {moral: 0, inf: 0, debt: +50, mil: +40}, next: "fase4", news: "SALVADOS POR WASHINGTON", sub: "Gran Bretaña hipoteca su futuro a cambio de tanques americanos." },
-            { title: "RECHAZAR (Austeridad Imperial)", hint: "Protege la soberanía financiera. Colapso inminente de la capacidad militar.", impact: {moral: -15, inf: +10, debt: 0, mil: -30}, next: "fase4", news: "CRIANDO FUERZAS EN LA ESCASEZ", sub: "El ejército sufre falta de insumos tras rechazar la ayuda externa." }
+            { title: "DISFRUTAR DEL SUPERÁVIT CIVIL", hint: "Ignora las advertencias militares.", impact: {moral: +20, inf: 0, debt: -20, mil: -10}, next: "alt_traicion", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
         ]
     },
-    {
-        id: "fase4", date: "DICIEMBRE 1941", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Women_at_work_during_the_Second_World_War_TR1141.jpg/800px-Women_at_work_during_the_Second_World_War_TR1141.jpg",
-        title: "LA CRISIS DE MANO DE OBRA",
-        text: "No quedan hombres. Las fábricas están operando al 40%. La única solución macroeconómica es sancionar el reclutamiento laboral femenino obligatorio.<br><br><div class='economic-note'>Forzar la inserción laboral aumenta drásticamente la capacidad productiva del Estado, pero genera tensiones sociales sin precedentes.</div>",
+
+    // CONVERGENCIA FORZADA (El "Cisne Negro")
+    alt_traicion: {
+        date: "NOVIEMBRE 1941", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Heinkel_He_111_during_the_Battle_of_Britain.jpg/800px-Heinkel_He_111_during_the_Battle_of_Britain.jpg", altHistory: true,
+        title: "OPERACIÓN LEÓN MARINO",
+        text: "<b>¡TRAICIÓN!</b> Alemania ha roto el pacto de Halifax. La Luftwaffe está arrasando las fábricas de bienes civiles que nos negamos a militarizar. <br><br>El gobierno pacífico ha caído. Hemos sido arrastrados de nuevo a la historia, pero con una economía totalmente desprevenida para el conflicto. Debemos rogarle a Estados Unidos que nos salve.",
         choices: [
-            { title: "RECLUTAMIENTO FEMENINO OBLIGATORIO", hint: "Expande el PBI militar, pero aumenta el desgaste social.", impact: {moral: -20, inf: 0, debt: 0, mil: +25}, next: "fase5", news: "MUJERES AL FRENTE INDUSTRIAL", sub: "Millones son llamadas a las fábricas de municiones por decreto." },
-            { title: "TRABAJO VOLUNTARIO Y HORAS EXTRAS", hint: "Mantiene la paz social. Fuerte déficit productivo.", impact: {moral: +10, inf: 0, debt: +10, mil: -15}, next: "fase5", news: "DÉFICIT EN LAS LÍNEAS DE ENSAMBLAJE", sub: "Las fábricas británicas no logran cumplir las cuotas de guerra." }
+            { title: "SUPLICAR AYUDA A WASHINGTON", hint: "Reencauza la historia. Impacto militar urgente. Deuda catastrófica.", impact: {moral: -40, inf: +30, debt: +60, mil: +30}, next: "beveridge", news: "¡TRAICIÓN NAZI!", sub: "El pacto era una trampa. Gran Bretaña, arrodillada, pide auxilio a EE.UU." }
         ]
     },
-    {
-        id: "fase5", date: "NOVIEMBRE 1942", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/William_Beveridge%2C_1st_Baron_Beveridge.jpg/800px-William_Beveridge%2C_1st_Baron_Beveridge.jpg",
-        title: "EL INFORME BEVERIDGE",
-        text: "En pleno bombardeo, un informe propone crear el 'Estado de Bienestar' en la posguerra: salud pública gratuita y seguros de desempleo.<br><br>Es impagable ahora mismo, pero promete a la clase obrera una recompensa por sus sacrificios. El Tesoro exige austeridad; los sociólogos exigen promesas.",
+
+    // CONTINUACIÓN LÍNEA HISTÓRICA
+    lend_lease: {
+        date: "MARZO 1941", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/FDR_signs_Lend-Lease.jpg/800px-FDR_signs_Lend-Lease.jpg", altHistory: false,
+        title: "LA QUIEBRA DEL IMPERIO",
+        text: "Nos hemos quedado sin Oro. EE.UU. ofrece salvarnos con el programa 'Lend-Lease', enviando armamento ilimitado.<br><br>El costo económico: exigen que liquidemos nuestras reservas extranjeras y desmantelemos nuestro monopolio comercial. Es el fin de la libra esterlina como moneda global y el paso de la hegemonía a Washington.",
         choices: [
-            { title: "COMPROMETERSE AL ESTADO DE BIENESTAR", hint: "La moral social sube drásticamente. La deuda pública se compromete a futuro.", impact: {moral: +40, inf: +10, debt: +20, mil: 0}, next: "fase6", news: "EL PLAN BEVERIDGE TRAE ESPERANZA", sub: "El gobierno promete salud y educación gratuita para la posguerra." },
-            { title: "ARCHIVAR EL INFORME (Austeridad)", hint: "Protege las cuentas del Estado. Desploma la moral civil.", impact: {moral: -30, inf: 0, debt: -10, mil: 0}, next: "fase6", news: "AUSTERIDAD ANTE TODO", sub: "El Tesoro entierra las promesas sociales por falta de fondos." }
+            { title: "ACEPTAR EL LEND-LEASE", hint: "El ejército se salva. La Deuda Externa se vuelve inmanejable.", impact: {moral: 0, inf: 0, debt: +40, mil: +40}, next: "beveridge", news: "ALIANZA DE PLATA", sub: "EE.UU. nos financia la guerra a cambio de nuestro dominio económico." },
+            { title: "RECHAZAR (Autarquía Imperial)", hint: "Protege la soberanía (Alt. History). Las tropas se quedan sin municiones.", impact: {moral: -15, inf: +20, debt: 0, mil: -35}, next: "alt_hambre", news: "ORGULLO IMPERIAL", sub: "Gran Bretaña peleará sola, sin dinero ni suministros extranjeros." }
         ]
     },
-    {
-        id: "fase6", date: "JUNIO 1944", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Into_the_Jaws_of_Death_23-0453M_edit.jpg/800px-Into_the_Jaws_of_Death_23-0453M_edit.jpg",
-        title: "EL DESEMBARCO DE NORMANDÍA",
-        text: "El esfuerzo final. Liberar Europa (Día D) requiere vaciar absolutamente todas las reservas de suministros civiles y desviarlas a la logística militar.<br><br><div class='economic-note'>Este último esfuerzo fiscal puede quebrar definitivamente la balanza de pagos o asegurar la victoria aplastante.</div>",
+
+    // RUTA ALTERNATIVA B
+    alt_hambre: {
+        date: "ENERO 1942", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Strikers_in_the_UK.jpg/800px-Strikers_in_the_UK.jpg", altHistory: true,
+        title: "COLAPSO DE LA AUTARQUÍA",
+        text: "Rechazar a EE.UU. fue un error logístico letal. Las colonias no pueden abastecernos solas. El pan está racionado a 100 gramos por semana. Las fábricas de tanques están detenidas por falta de acero.<br><br>Están estallando huelgas masivas y motines en la marina mercantil por el hambre. El gobierno está a punto de caer ante una revolución socialista.",
         choices: [
-            { title: "SACRIFICIO TOTAL PARA EL DÍA D", hint: "Poder militar máximo. Quiebra civil e inflacionaria.", impact: {moral: -20, inf: +20, debt: +15, mil: +30}, next: "final", news: "TODO POR LA VICTORIA", sub: "El país queda seco de recursos mientras las tropas cruzan el canal." },
-            { title: "MANTENER RESERVAS CIVILES", hint: "Protege la macroeconomía de posguerra. Riesgo militar altísimo.", impact: {moral: +15, inf: -10, debt: -10, mil: -25}, next: "final", news: "EL EJÉRCITO PIDE MÁS", sub: "El Tesoro se niega a vaciar los graneros para la invasión." }
+            { title: "CAPITULAR ANTE ESTADOS UNIDOS", hint: "Reencauza la historia. Acepta el rescate americano tarde y caro.", impact: {moral: -10, inf: 0, debt: +50, mil: +30}, next: "beveridge", news: "COLAPSO SOCIAL EVITADO", sub: "Ante los motines, el gobierno se rinde y acepta los dólares americanos." }
         ]
     },
-    {
-        id: "final", date: "AGOSTO 1945", 
-        photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg/800px-VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg",
+
+    // CONVERGENCIA FINAL
+    beveridge: {
+        date: "DICIEMBRE 1942", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/William_Beveridge%2C_1st_Baron_Beveridge.jpg/800px-William_Beveridge%2C_1st_Baron_Beveridge.jpg", altHistory: false,
+        title: "EL CONTRATO SOCIAL",
+        text: "Toda la población ha sufrido. Para evitar estallidos tras la guerra, el economista W. Beveridge propone crear el <b>Estado de Bienestar</b> (Salud y educación pública universal) para la posguerra.<br><br>Es financieramente irresponsable asumir estos gastos estando endeudados, pero es la única forma de recompensar a la clase obrera por la sangre derramada.",
+        choices: [
+            { title: "FIRMAR EL INFORME BEVERIDGE", hint: "Sella la paz social a largo plazo. Consolida el déficit estructural.", impact: {moral: +45, inf: +15, debt: +25, mil: 0}, next: "d_day", news: "SALUD PÚBLICA PARA TODOS", sub: "El gobierno promete un Estado de Bienestar integral para la posguerra." },
+            { title: "VETAR EL INFORME (Ortodoxia Fiscal)", hint: "Protege las cuentas del Estado. Destruye la moral popular.", impact: {moral: -35, inf: -10, debt: -15, mil: 0}, next: "d_day", news: "NO HAY DINERO PARA PROMESAS", sub: "El Ministro de Hacienda rechaza financiar un sistema de salud público." }
+        ]
+    },
+
+    d_day: {
+        date: "JUNIO 1944", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Into_the_Jaws_of_Death_23-0453M_edit.jpg/800px-Into_the_Jaws_of_Death_23-0453M_edit.jpg", altHistory: false,
+        title: "EL ESFUERZO FINAL",
+        text: "Desembarco de Normandía. Liberar Europa requiere desviar absolutamente cada recurso industrial, tren y litro de combustible civil hacia el ejército.<br><br>Esta decisión económica extrema definirá la victoria militar, pero puede quebrar definitivamente la balanza comercial interna.",
+        choices: [
+            { title: "MÁXIMO ESFUERZO FISCAL", hint: "Garantiza la victoria militar. Agota la economía.", impact: {moral: -15, inf: +20, debt: +15, mil: +40}, next: "final", news: "EL DÍA D HA COMENZADO", sub: "La mayor inversión militar de la historia cruza el Canal de la Mancha." }
+        ]
+    },
+
+    final: {
+        date: "AGOSTO 1945", photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg/800px-VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg", altHistory: false,
         title: "EVALUACIÓN MACROECONÓMICA FINAL",
         text: "<div id='final-report'></div>",
-        choices: [{ title: "CERRAR EXPEDIENTE", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE", sub: "Una nueva era económica comienza." }]
+        choices: [{ title: "CERRAR EXPEDIENTE", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE", sub: "Una nueva era económica comienza bajo el paradigma Keynesiano." }]
     }
-];
+};
 
 function updateUI() {
     for(let k in stats) { stats[k] = Math.max(0, Math.min(100, stats[k])); }
+    
     document.getElementById('fill-moral').style.width = stats.moral + "%";
     document.getElementById('fill-inf').style.width = stats.inf + "%";
     document.getElementById('fill-debt').style.width = stats.debt + "%";
     document.getElementById('fill-mil').style.width = stats.mil + "%";
     
-    // Warning colors
     document.getElementById('fill-inf').style.backgroundColor = stats.inf > 70 ? "#8b0000" : "#e74c3c";
-    document.getElementById('fill-debt').style.backgroundColor = stats.debt > 70 ? "#8b0000" : "#e67e22";
+    document.getElementById('fill-debt').style.backgroundColor = stats.debt > 70 ? "#8b0000" : "#f39c12";
     document.getElementById('fill-moral').style.backgroundColor = stats.moral < 30 ? "#c0392b" : "#2ecc71";
 }
 
 function buildReport() {
-    let rep = "<p>La guerra ha concluido. El análisis de su gestión arroja los siguientes resultados:</p><hr>";
+    let rep = "<p>La guerra ha concluido. El análisis macroeconómico de su gestión es el siguiente:</p><hr>";
     
-    if(stats.mil >= 60) rep += "<p><b>Victoria Militar:</b> Logró abastecer al frente. Alemania fue derrotada gracias al enorme esfuerzo logístico de la nación.</p>";
-    else rep += "<p><b>Estancamiento Militar:</b> Su falta de financiamiento dejó al ejército paralizado. La guerra se ganó sólo gracias a la intervención extranjera directa.</p>";
+    if(stats.mil >= 70) rep += "<p><b>ESTATUS BÉLICO: Súperpotencia.</b> El esfuerzo económico logró proveer una victoria militar aplastante.</p>";
+    else if (stats.mil >= 40) rep += "<p><b>ESTATUS BÉLICO: Victoria Dependiente.</b> Sobrevivimos, pero el peso real de la guerra fue financiado por el exterior.</p>";
+    else rep += "<p><b>ESTATUS BÉLICO: Colapso.</b> Las malas decisiones económicas dejaron al ejército inoperante. La isla quedó devastada.</p>";
 
-    if(stats.inf >= 70) rep += "<p><b>Hiperinflación:</b> Emitió sin control. Los ahorros de la clase media se evaporaron, destruyendo el poder adquisitivo.</p>";
-    else rep += "<p><b>Estabilidad de Precios:</b> Logró contener el flagelo inflacionario, una hazaña rara en una economía de guerra.</p>";
+    if(stats.inf >= 70) rep += "<p><b>INFLACIÓN: Hiperinflación.</b> La emisión descontrolada licuó los ahorros de toda la clase media y trabajadora.</p>";
+    else rep += "<p><b>INFLACIÓN: Controlada.</b> Logró una hazaña histórica al financiar una guerra sin destruir el valor de la moneda local.</p>";
 
-    if(stats.debt >= 70) rep += "<p><b>Colonia Financiera:</b> El país está en bancarrota. La enorme deuda externa con EE.UU. dictará nuestra política durante las próximas 5 décadas.</p>";
-    else rep += "<p><b>Soberanía Económica:</b> Mantuvo las finanzas bajo control relativo, salvando parte de nuestra independencia financiera.</p>";
+    if(stats.debt >= 70) rep += "<p><b>DEUDA SOBERANA: Vasallaje Financiero.</b> El país queda atado por 50 años a la deuda estadounidense. Gran Bretaña ha perdido su imperio económico.</p>";
+    else rep += "<p><b>DEUDA SOBERANA: Sostenible.</b> Protegió las reservas de oro y la balanza de pagos. El país puede reconstruirse sin depender de potencias extranjeras.</p>";
 
-    if(stats.moral >= 60) rep += "<p><b>Paz Social:</b> Sentó las bases para el Estado de Bienestar. La población está lista para reconstruir el país unida.</p>";
-    else rep += "<p><b>Fractura Social:</b> Las huelgas y el malestar dominan las calles. Las exigencias al pueblo fueron excesivas sin promesas a cambio.</p>";
+    if(stats.moral >= 70) rep += "<p><b>SOCIEDAD: El Nuevo Contrato.</b> El Estado de Bienestar está asegurado. La población está lista para trabajar en paz.</p>";
+    else rep += "<p><b>SOCIEDAD: Fractura Total.</b> La austeridad y el hambre han generado un caldo de cultivo para rebeliones sindicales inminentes.</p>";
 
     return rep;
 }
@@ -334,26 +352,18 @@ function buildReport() {
 function renderPhase(id) {
     if(id === "intro") { stats = { moral: 80, inf: 10, debt: 20, mil: 20 }; updateUI(); }
     
-    let p = phases.find(x => x.id === id);
-    playPaper();
+    let p = storyTree[id];
+    playSound('paper');
 
     document.getElementById('ui-date').innerText = p.date;
     document.getElementById('ui-title').innerText = p.title;
+    document.getElementById('ui-photo').src = p.photo;
     
-    // Foto
-    let photoBox = document.getElementById('ui-photo-box');
-    if(p.photo) {
-        document.getElementById('ui-photo').src = p.photo;
-        photoBox.style.display = "flex";
-    } else {
-        photoBox.style.display = "none";
-    }
-    
-    if(id === "final") {
-        document.getElementById('ui-text').innerHTML = buildReport();
-    } else {
-        document.getElementById('ui-text').innerHTML = p.text;
-    }
+    // Tag de historia alternativa
+    document.getElementById('alt-tag').style.display = p.altHistory ? "inline-block" : "none";
+
+    if(id === "final") document.getElementById('ui-text').innerHTML = buildReport();
+    else document.getElementById('ui-text').innerHTML = p.text;
 
     let box = document.getElementById('choices-box');
     box.innerHTML = "";
@@ -364,13 +374,12 @@ function renderPhase(id) {
         let html = `<span class="btn-title">SELLO: ${c.title}</span>`;
         if(c.hint) html += `<span class="btn-hint">${c.hint}</span>`;
         
-        // El sello animado
         html += `<div class="stamp-effect" id="stamp-${idx}">APROBADO</div>`;
         btn.innerHTML = html;
 
         btn.onclick = () => {
             enterFullScreen();
-            playStamp();
+            playSound('stamp');
             document.getElementById(`stamp-${idx}`).classList.add('stamp-animate');
             
             if(c.impact) {
@@ -384,7 +393,7 @@ function renderPhase(id) {
                 document.getElementById('news-subhead').innerText = c.sub;
                 document.getElementById('newspaper-modal').style.display = 'flex';
                 nextPhaseId = c.next;
-            }, 600);
+            }, 500);
         };
         box.appendChild(btn);
     });
@@ -394,11 +403,10 @@ function nextPhase() {
     document.getElementById('newspaper-modal').style.display = 'none';
     document.getElementById('dossier-wrapper').scrollTop = 0;
     
-    // Animar la entrada del papel
     let paper = document.getElementById('paper-doc');
     paper.style.animation = 'none';
     void paper.offsetWidth; 
-    paper.style.animation = 'slideIn 0.5s ease-out';
+    paper.style.animation = 'slideIn 0.4s ease-out';
     
     renderPhase(nextPhaseId);
 }
@@ -407,7 +415,6 @@ window.onload = () => {
     updateUI();
     renderPhase('intro');
 };
-
 </script>
 </body>
 </html>
