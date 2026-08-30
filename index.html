@@ -2,327 +2,413 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1945: El Precio de la Victoria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gabinete Macroeconómico - Edición Documental</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap');
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            background-color: #2c251f;
+            background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
+            font-family: 'Playfair Display', serif;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+            user-select: none;
         }
+
         #game-container {
-            background-color: #fff;
-            max-width: 600px;
-            width: 100%;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-top: 5px solid #2c3e50;
+            width: 100%; max-width: 900px; height: 100vh; max-height: 900px;
+            display: flex; flex-direction: column; position: relative;
+            background: #111; box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            font-size: 1.8em;
-            margin-bottom: 5px;
+
+        /* BARRA SUPERIOR DE ESTADÍSTICAS */
+        #top-bar {
+            background: #1a1a1a; border-bottom: 2px solid #d4af37;
+            display: flex; justify-content: space-around; padding: 10px;
+            z-index: 10;
         }
-        .subtitle {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 0.9em;
+        .stat-box { text-align: center; width: 22%; }
+        .stat-label { font-family: 'Special Elite', cursive; color: #a9a9a9; font-size: 0.8em; margin-bottom: 5px;}
+        .stat-bar { height: 15px; background: #333; border: 1px solid #555; border-radius: 2px; overflow: hidden; position: relative;}
+        .stat-fill { height: 100%; width: 50%; transition: width 0.5s, background-color 0.5s; }
+        
+        #fill-moral { background: #2ecc71; }
+        #fill-inf { background: #e74c3c; }
+        #fill-debt { background: #e67e22; }
+        #fill-mil { background: #3498db; }
+
+        /* ÁREA DEL DOSSIER */
+        #dossier-wrapper {
+            flex: 1; padding: 20px; display: flex; justify-content: center; align-items: flex-start;
+            overflow-y: auto; perspective: 1000px;
+        }
+
+        .paper {
+            background-color: #f4e9d8;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/></svg>');
+            width: 90%; max-width: 700px; padding: 30px; box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+            color: #222; position: relative;
+            transform-origin: top center;
+            animation: slideIn 0.5s ease-out;
             margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
-        #story-text {
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 30px;
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px) rotateX(10deg); opacity: 0; }
+            to { transform: translateY(0) rotateX(0deg); opacity: 1; }
         }
-        #story-text p {
-            margin-bottom: 15px;
+
+        .classification {
+            position: absolute; top: 20px; right: 20px;
+            font-family: 'Special Elite', cursive; color: #c0392b; border: 3px solid #c0392b;
+            padding: 5px 10px; transform: rotate(-5deg); font-size: 1.2em; opacity: 0.8;
+            z-index: 5;
         }
+
+        .date { font-family: 'Special Elite', cursive; font-size: 1.1em; color: #555; border-bottom: 1px dashed #777; padding-bottom: 5px; margin-bottom: 15px;}
+        h1 { font-size: 2em; margin-top: 0; margin-bottom: 15px; color: #111; line-height: 1.2;}
+        .body-text { font-size: 1.2em; line-height: 1.6; text-align: justify; margin-bottom: 20px;}
+        
         .economic-note {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            margin-top: 20px;
-            font-style: italic;
+            background: rgba(0,0,0,0.05); border-left: 4px solid #2980b9;
+            padding: 10px 15px; font-style: italic; font-size: 1.1em; margin-bottom: 20px;
         }
-        .choices-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+
+        /* FOTOGRAFÍAS HISTÓRICAS */
+        .historical-photo-container {
+            width: 100%; max-height: 250px; overflow: hidden;
+            margin-bottom: 20px; border: 6px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: #000; display: flex; justify-content: center; align-items: center;
         }
-        button {
-            background-color: #34495e;
-            color: white;
-            border: none;
-            padding: 15px;
-            font-size: 1em;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-align: left;
+        .historical-photo {
+            width: 100%; height: 100%; object-fit: cover; object-position: top;
+            filter: grayscale(100%) sepia(40%) contrast(1.3) brightness(0.9); 
         }
-        button:hover {
-            background-color: #2c3e50;
+
+        /* BOTONES DE DECISIÓN ESTILO SELLO */
+        .choices-container { display: flex; flex-direction: column; gap: 15px; border-top: 2px solid #ccc; padding-top: 20px;}
+        
+        .decision-btn {
+            background: #fff; border: 2px solid #555; padding: 15px;
+            text-align: left; font-family: 'Playfair Display', serif; font-size: 1.2em;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn-restart {
-            background-color: #e74c3c;
-            text-align: center;
-            margin-top: 20px;
+        .decision-btn:hover { background: #f0f0f0; transform: translateX(5px); border-color: #111;}
+        .btn-title { font-weight: bold; display: block; margin-bottom: 5px;}
+        .btn-hint { font-size: 0.85em; font-family: 'Special Elite', cursive; color: #c0392b;}
+
+        /* EFECTO DE SELLO AL HACER CLIC */
+        .stamp-effect {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2) rotate(-15deg);
+            font-family: 'Special Elite', cursive; font-size: 3em; color: #c0392b; border: 4px solid #c0392b;
+            padding: 10px; opacity: 0; pointer-events: none;
         }
-        .btn-restart:hover {
-            background-color: #c0392b;
+        .stamp-animate { animation: stampDown 0.4s forwards; }
+        @keyframes stampDown {
+            0% { transform: translate(-50%, -50%) scale(2) rotate(-15deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 0; }
+        }
+
+        /* MODAL DE PERIÓDICO (FEEDBACK) */
+        #newspaper-modal {
+            position: fixed; top:0; left:0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .newspaper {
+            background: #e8dcc4; width: 90%; max-width: 600px; padding: 20px;
+            text-align: center; border: 10px solid double #333; box-shadow: 0 0 20px #000;
+            font-family: 'Playfair Display', serif; color: #222;
+            animation: spinZoom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes spinZoom {
+            0% { transform: scale(0.1) rotate(-720deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .news-header { font-size: 2.5em; border-bottom: 2px solid #222; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;}
+        .news-sub { font-size: 1.2em; font-style: italic; margin-bottom: 20px; }
+        .news-btn { background: #222; color: #fff; border: none; padding: 10px 20px; font-family: 'Special Elite', cursive; font-size: 1.2em; cursor: pointer; margin-top: 20px;}
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+
+        @media (max-width: 600px) {
+            .paper { width: 95%; padding: 20px; }
+            h1 { font-size: 1.5em; }
+            .body-text { font-size: 1.1em; }
+            .decision-btn { font-size: 1.1em; padding: 10px;}
+            .stat-label { font-size: 0.65em; }
+            .news-header { font-size: 1.8em; }
+            .historical-photo-container { max-height: 180px; }
         }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <h1>1945: EL PRECIO DE LA VICTORIA</h1>
-    <div class="subtitle">Simulador del Gabinete de Guerra Británico</div>
-    
-    <div id="story-text">
+    <div id="game-container">
+        
+        <div id="top-bar">
+            <div class="stat-box"><div class="stat-label">BIENESTAR CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral" style="width: 80%;"></div></div></div>
+            <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf" style="width: 10%;"></div></div></div>
+            <div class="stat-box"><div class="stat-label">DEUDA PÚBLICA</div><div class="stat-bar"><div class="stat-fill" id="fill-debt" style="width: 20%;"></div></div></div>
+            <div class="stat-box"><div class="stat-label">PODER MILITAR</div><div class="stat-bar"><div class="stat-fill" id="fill-mil" style="width: 20%;"></div></div></div>
         </div>
-    
-    <div id="choices-container" class="choices-container">
+
+        <div id="dossier-wrapper">
+            <div class="paper" id="paper-doc">
+                <div class="classification">CONFIDENCIAL</div>
+                <div class="date" id="ui-date"></div>
+                <h1 id="ui-title"></h1>
+                
+                <!-- CONTENEDOR DE FOTO -->
+                <div class="historical-photo-container" id="ui-photo-box" style="display: none;">
+                    <img id="ui-photo" class="historical-photo" src="" alt="Documento histórico">
+                </div>
+
+                <div class="body-text" id="ui-text"></div>
+                <div class="choices-container" id="choices-box"></div>
+            </div>
         </div>
-</div>
+
+    </div>
+
+    <!-- MODAL PERIÓDICO -->
+    <div id="newspaper-modal">
+        <div class="newspaper">
+            <div style="font-family: 'Special Elite', cursive; font-size: 0.9em; margin-bottom: 5px;">THE LONDON TIMES</div>
+            <div class="news-header" id="news-headline">TITULAR AQUÍ</div>
+            <div class="news-sub" id="news-subhead">Subtítulo aquí</div>
+            <button class="news-btn" onclick="nextPhase()">LEER SIGUIENTE INFORME</button>
+        </div>
+    </div>
 
 <script>
-    const storyData = {
-        inicio: {
-            text: `<p><strong>Londres, 1939.</strong></p>
-                   <p>Europa está al borde de la guerra. Alemania ha invadido Polonia.</p>
-                   <p>Ustedes forman parte del gobierno británico. No saben cuánto durará la guerra. No saben qué países entrarán. No saben quién ganará. Y, sobre todo: no conocen el futuro.</p>
-                   <p>Su tarea será tomar decisiones con la información disponible en cada momento. Una vez tomada la decisión, no podrán cambiarla.</p>`,
-            choices: [
-                { text: "Abrir el primer informe", next: "sit1" }
-            ]
-        },
-        sit1: {
-            text: `<p><strong>SITUACIÓN 1: "LA GUERRA COMIENZA" (Septiembre de 1939)</strong></p>
-                   <p>Alemania invade Polonia. El gobierno británico debe decidir cómo responder.</p>
-                   <p>¿Qué hace Gran Bretaña?</p>`,
-            choices: [
-                { text: "A: Declarar la guerra a Alemania. Entrar directamente en el conflicto.", next: "sobre1A" },
-                { text: "B: No declarar inmediatamente la guerra. Intentar la diplomacia.", next: "sobre1B" }
-            ]
-        },
-        sobre1A: {
-            text: `<p><strong>LA GUERRA HA COMENZADO</strong></p>
-                   <p>3 de septiembre de 1939. Gran Bretaña declara la guerra a Alemania. El país entra oficialmente en la Segunda Guerra Mundial.</p>
-                   <div class="economic-note"><strong>Consecuencia económica:</strong> El gobierno comienza a movilizar recursos para el conflicto. La producción militar empieza a adquirir cada vez mayor importancia.</div>`,
-            choices: [
-                { text: "Continuar a la siguiente situación", next: "sit2" }
-            ]
-        },
-        sobre1B: {
-            text: `<p><strong>UNA GUERRA EVITADA... POR AHORA</strong></p>
-                   <p>Gran Bretaña decide no declarar inmediatamente la guerra. Alemania continúa expandiéndose por Europa. La presión sobre el gobierno británico aumenta.</p>
-                   <p>Llega un nuevo momento crítico. ¿Qué deciden?</p>`,
-            choices: [
-                { text: "A: Si Alemania continúa expandiéndose, intervenir militarmente.", next: "sit2" },
-                { text: "B: Mantenerse definitivamente fuera del conflicto.", next: "final3" }
-            ]
-        },
-        sit2: {
-            text: `<p><strong>SITUACIÓN 2: "DUNKERQUE" (Mayo-junio de 1940)</strong></p>
-                   <p>Alemania avanza rápidamente por Europa occidental. Las fuerzas británicas están atrapadas en Francia.</p>
-                   <p>Llega un mensaje urgente: "Decenas de miles de soldados británicos están rodeados en Dunkerque."</p>
-                   <p>El Gabinete debe decidir:</p>`,
-            choices: [
-                { text: "A - EVACUAR: Retirar las tropas británicas y salvar a los soldados.", next: "sobre2A" },
-                { text: "B - RESISTIR: Mantener las tropas en Francia e intentar retrasar el avance.", next: "sobre2B" }
-            ]
-        },
-        sobre2A: {
-            text: `<p><strong>OPERACIÓN DYNAMO</strong></p>
-                   <p>Las fuerzas británicas son evacuadas. Una enorme cantidad de soldados consigue regresar a Gran Bretaña. Pero gran parte del equipamiento pesado queda atrás.</p>
-                   <div class="economic-note"><strong>Consecuencia económica:</strong> Gran Bretaña debe reconstruir y reequipar su ejército. Las fábricas reciben una presión cada vez mayor.</div>`,
-            choices: [
-                { text: "Continuar a la siguiente situación", next: "sit3" }
-            ]
-        },
-        sobre2B: {
-            text: `<p><strong>EL EJÉRCITO QUEDA ATRAPADO</strong></p>
-                   <p>La resistencia continúa, pero la situación empeora. Las pérdidas británicas aumentan considerablemente.</p>
-                   <p>¿Qué orden darán ahora?</p>`,
-            choices: [
-                { text: "A: Ordenar finalmente la evacuación.", next: "sit3" },
-                { text: "B: Continuar resistiendo hasta las últimas consecuencias.", next: "final3" }
-            ]
-        },
-        sit3: {
-            text: `<p><strong>SITUACIÓN 3: "GRAN BRETAÑA ESTÁ SOLA" (Verano-otoño de 1940)</strong></p>
-                   <p>Francia ha caído. Alemania amenaza Gran Bretaña. La Luftwaffe comienza a atacar objetivos británicos.</p>
-                   <p>Las fábricas necesitan producir armamento, pero la población también necesita alimentos y bienes.</p>`,
-            choices: [
-                { text: "A - LA GUERRA ES PRIORIDAD: Orientar recursos hacia armas y equipamiento.", next: "sobre3A" },
-                { text: "B - PROTEGER A LA POBLACIÓN: Mantener producción de bienes de consumo civil.", next: "sobre3B" }
-            ]
-        },
-        sobre3A: {
-            text: `<p><strong>MOVILIZACIÓN INDUSTRIAL</strong></p>
-                   <p>Las fábricas británicas reciben prioridad. La producción de aviones y armamento aumenta.</p>
-                   <div class="economic-note"><strong>Consecuencia económica:</strong> Los bienes destinados al consumo civil disminuyen. La población deberá aceptar mayores restricciones.</div>`,
-            choices: [
-                { text: "Continuar a la siguiente situación", next: "sit4" }
-            ]
-        },
-        sobre3B: {
-            text: `<p><strong>UNA ECONOMÍA MÁS CIVIL</strong></p>
-                   <p>La población mantiene acceso a bienes de consumo. Sin embargo, la producción militar crece muy lentamente y la presión sobre las defensas aumenta peligrosamente.</p>`,
-            choices: [
-                { text: "A: Cambiar la prioridad y aumentar rápidamente la producción militar.", next: "sit4" },
-                { text: "B: Mantener la prioridad civil, cueste lo que cueste.", next: "sit4_alt" }
-            ]
-        },
-        sit4: {
-            text: `<p><strong>SITUACIÓN 4: "LA BATALLA DEL ATLÁNTICO" (1941-1942)</strong></p>
-                   <p>Llegan alimentos, petróleo y recursos por vía marítima, pero los submarinos alemanes atacan los barcos.</p>
-                   <p>Mensaje alarmante: "Si disminuyen las importaciones, podríamos tener dificultades para alimentar a la población y mantener la industria."</p>`,
-            choices: [
-                { text: "A - DEBEMOS RACIONAR: Reducir y controlar el consumo interno.", next: "sobre4A" },
-                { text: "B - UTILICEMOS LAS RESERVAS: Mantener el consumo usando reservas.", next: "sobre4B" }
-            ]
-        },
-        sit4_alt: {
-            text: `<p><strong>SITUACIÓN 4: "LA BATALLA DEL ATLÁNTICO" (Crisis Inminente)</strong></p>
-                   <p>Al haber mantenido la prioridad civil, la capacidad defensiva está al límite. Ahora, los submarinos alemanes hunden los suministros marítimos.</p>`,
-            choices: [
-                { text: "A - DEBEMOS RACIONAR URGENTEMENTE.", next: "sobre4A" },
-                { text: "B - UTILIZAR LAS RESERVAS.", next: "sobre4B_irrecuperable" }
-            ]
-        },
-        sobre4A: {
-            text: `<p><strong>EL RACIONAMIENTO</strong></p>
-                   <p>El gobierno establece y amplía el sistema de racionamiento. La población debe aceptar restricciones sobre determinados productos.</p>
-                   <div class="economic-note"><strong>Consecuencia Histórica:</strong> Los recursos disponibles se distribuyen de manera más controlada. La economía civil queda fuertemente condicionada.</div>`,
-            choices: [
-                { text: "Continuar a la siguiente situación", next: "sit5" }
-            ]
-        },
-        sobre4B: {
-            text: `<p><strong>LAS RESERVAS SE AGOTAN</strong></p>
-                   <p>Durante un tiempo la población mantiene su consumo, pero las reservas disminuyen rápidamente. Llega otro mensaje: "Las reservas no serán suficientes."</p>`,
-            choices: [
-                { text: "A: Introducir finalmente el racionamiento.", next: "sit5" },
-                { text: "B: Continuar exprimiendo las reservas.", next: "sobre4B_irrecuperable" }
-            ]
-        },
-        sobre4B_irrecuperable: {
-            text: `<p><strong>COLAPSO DE SUMINISTROS</strong></p>
-                   <p>La escasez comienza a afectar seriamente al país. La incapacidad de sostener el ritmo industrial y civil debilita drásticamente el esfuerzo bélico.</p>`,
-            choices: [
-                { text: "Afrontar las consecuencias", next: "final3" }
-            ]
-        },
-        sit5: {
-            text: `<p><strong>SITUACIÓN 5: "¿CÓMO SOSTENEMOS LA GUERRA?" (1941)</strong></p>
-                   <p>El esfuerzo de guerra aumenta, pero los recursos propios son limitados.</p>
-                   <p>Llega un mensaje desde Washington: "Estados Unidos está dispuesto a proporcionar ayuda material a Gran Bretaña."</p>`,
-            choices: [
-                { text: "A - ACEPTAMOS LA AYUDA: Aceptar ampliamente el apoyo material estadounidense.", next: "sobre5A" },
-                { text: "B - RECURSOS PROPIOS: Intentar reducir la dependencia económica de otros países.", next: "sobre5B" }
-            ]
-        },
-        sobre5A: {
-            text: `<p><strong>ESTADOS UNIDOS AYUDA</strong></p>
-                   <p>Llegan alimentos, materias primas, vehículos y equipamiento. La capacidad para continuar la guerra aumenta, pero también la dependencia económica.</p>
-                   <p><strong>NUEVO ACONTECIMIENTO (7 de diciembre de 1941):</strong> Japón ataca Pearl Harbor. Estados Unidos entra en la guerra. El conflicto cambia de escala.</p>`,
-            choices: [
-                { text: "Avanzar al tramo final de la guerra", next: "sit6" }
-            ]
-        },
-        sobre5B: {
-            text: `<p><strong>GRAN BRETAÑA POR SUS PROPIOS MEDIOS</strong></p>
-                   <p>El gobierno intenta continuar la guerra solo con lo suyo. Al principio funciona, pero la presión económica se vuelve insostenible.</p>`,
-            choices: [
-                { text: "A: Aceptar finalmente la ayuda estadounidense.", next: "sit6" },
-                { text: "B: Continuar rechazándola por orgullo nacional.", next: "final3" }
-            ]
-        },
-        sit6: {
-            text: `<p><strong>SITUACIÓN 6: "EL ÚLTIMO ESFUERZO" (1944)</strong></p>
-                   <p>Los Aliados avanzan. Alemania empieza a retroceder tras Normandía. Pero Gran Bretaña lleva años de guerra y está económicamente agotada.</p>
-                   <p>El Gabinete recibe una última pregunta:</p>`,
-            choices: [
-                { text: "A - LLEGAR HASTA EL FINAL: Mantener el máximo esfuerzo militar hasta la victoria.", next: "final1" },
-                { text: "B - PREPARAR LA POSGUERRA: Reducir el esfuerzo bélico y acomodar la economía.", next: "final2" }
-            ]
-        },
-        final1: {
-            text: `<p><strong>MAYO DE 1945: VICTORIA HISTÓRICA</strong></p>
-                   <p>Alemania se rinde. Los Aliados han ganado la guerra en Europa.</p>
-                   <div class="economic-note">
-                   <p><strong>¿Y QUÉ QUEDÓ DESPUÉS DE LA VICTORIA?</strong></p>
-                   <p>Gran Bretaña ganó la guerra, pero a un precio altísimo: país profundamente endeudado, años de racionamiento soportado, economía completamente movilizada y dependencia total de EE.UU.</p>
-                   <p>La victoria militar no significó salir económicamente intactos. (Camino Histórico Real)</p>
-                   </div>`,
-            choices: [
-                { text: "Volver a jugar", next: "inicio", isRestart: true }
-            ]
-        },
-        final2: {
-            text: `<p><strong>LA GUERRA TERMINA, PERO EL PAÍS CAMBIA (VICTORIA ALTERNATIVA)</strong></p>
-                   <p>Alemania finalmente es derrotada y los Aliados ganan la guerra.</p>
-                   <p>Sin embargo, la preparación anticipada de la economía para la posguerra hizo que el país llegara a 1945 por un camino diferente al histórico.</p>
-                   <div class="economic-note">Ganaron la guerra, pero construyeron una línea temporal alternativa.</div>`,
-            choices: [
-                { text: "Volver a jugar", next: "inicio", isRestart: true }
-            ]
-        },
-        final3: {
-            text: `<p><strong>LA HISTORIA CAMBIÓ (DERROTA / PAZ NEGOCIADA)</strong></p>
-                   <p>Las decisiones acumuladas han debilitado demasiado la capacidad británica para continuar el conflicto. El país no puede sostener indefinidamente el esfuerzo militar.</p>
-                   <p>Gran Bretaña debe buscar una salida negociada o afrontar la derrota.</p>
-                   <div class="economic-note">Esta situación nunca ocurrió en la historia real, pero fue el camino que construyeron con sus decisiones (Historia Alternativa Irrecuperable).</div>`,
-            choices: [
-                { text: "Volver a intentar", next: "inicio", isRestart: true }
-            ]
-        }
-    };
+// --- AUDIO ---
+const actx = new (window.AudioContext || window.webkitAudioContext)();
+function playStamp() {
+    if(actx.state === 'suspended') actx.resume();
+    const osc = actx.createOscillator(); const gain = actx.createGain();
+    osc.type = 'square'; osc.frequency.setValueAtTime(100, actx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(10, actx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.5, actx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.1);
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start(); osc.stop(actx.currentTime + 0.1);
+}
+function playPaper() {
+    if(actx.state === 'suspended') actx.resume();
+    const osc = actx.createOscillator(); const gain = actx.createGain();
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, actx.currentTime);
+    gain.gain.setValueAtTime(0.1, actx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.05);
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start(); osc.stop(actx.currentTime + 0.05);
+}
 
-    const storyTextElement = document.getElementById('story-text');
-    const choicesContainer = document.getElementById('choices-container');
+function enterFullScreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        let docElm = document.documentElement;
+        if (docElm.requestFullscreen) docElm.requestFullscreen().catch(()=>{});
+        else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+    }
+}
 
-    function renderNode(nodeId) {
-        const node = storyData[nodeId];
-        
-        // Actualizar el texto
-        storyTextElement.innerHTML = node.text;
-        
-        // Limpiar los botones anteriores
-        choicesContainer.innerHTML = '';
-        
-        // Crear los nuevos botones
-        node.choices.forEach(choice => {
-            const button = document.createElement('button');
-            button.innerText = choice.text;
-            
-            if (choice.isRestart) {
-                button.classList.add('btn-restart');
-            }
-            
-            button.addEventListener('click', () => {
-                renderNode(choice.next);
-            });
-            choicesContainer.appendChild(button);
-        });
+// --- ESTADO MACROECONÓMICO ---
+let stats = { moral: 80, inf: 10, debt: 20, mil: 20 };
+let nextPhaseId = null;
+
+// Enlaces directos a Wikimedia Commons garantizados para carga externa
+const phases = [
+    {
+        id: "intro", date: "SEPTIEMBRE 1939", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Winston_Churchill_as_Prime_Minister_1940-1945_MH26392.jpg",
+        title: "ECONOMÍA EN ESTADO DE EMERGENCIA",
+        text: "La guerra ha estallado. Como Ministro de Hacienda, su tarea es evitar que el país colapse. Cada libra gastada en armamento es una libra menos para la sociedad.<br><br><div class='economic-note'>La Macroeconomía no perdona: si imprime dinero sin control, la inflación destruirá los salarios. Si se endeuda demasiado, el país será esclavo de potencias extranjeras en la posguerra. Administre con cautela.</div>",
+        choices: [{ title: "ASUMIR EL CARGO", impact: null, next: "fase1", news: "EL GABINETE DE GUERRA TOMA EL CONTROL", sub: "La nación se prepara para el sacrificio financiero." }]
+    },
+    {
+        id: "fase1", date: "FEBRERO 1940", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/b/b3/A_woman_worker_in_a_British_tank_factory_during_the_Second_World_War.jpg",
+        title: "LA RECONVERSIÓN INDUSTRIAL",
+        text: "Necesitamos cañones, no automóviles. El Ministerio de Suministros propone confiscar la producción civil privada y fijar controles de precios estrictos.<br><br>Los economistas advierten que congelar precios puede generar desabastecimiento, pero el mercado libre dejaría a los pobres sin comida.",
+        choices: [
+            { title: "CONTROL DE PRECIOS Y RACIONAMIENTO ESTRICTO", hint: "Contiene la inflación, sube poder militar, pero enoja a empresarios.", impact: {moral: -10, inf: -20, debt: +5, mil: +20}, next: "fase2", news: "RACIONAMIENTO: CARTILLAS PARA TODOS", sub: "El Estado asfixia el mercado para financiar la guerra." },
+            { title: "MANTENER MERCADO LIBRE (COMPRAS ESTATALES)", hint: "Protege la moral corporativa, pero dispara la inflación.", impact: {moral: +5, inf: +35, debt: +15, mil: +15}, next: "fase2", news: "PRECIOS POR LAS NUBES", sub: "La inflación golpea los bolsillos mientras el Estado compra armas." }
+        ]
+    },
+    {
+        id: "fase2", date: "AGOSTO 1940", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/c/c5/John_Maynard_Keynes.jpg",
+        title: "FINANCIAMIENTO: EL PLAN KEYNES",
+        text: "La guerra está vaciando el tesoro. John Maynard Keynes propone el 'Ahorro Forzoso' (Deferred Pay): descontar obligatoriamente parte del salario a los trabajadores hoy, para devolvérselo al terminar la guerra.<br><br><div class='economic-note'>Retirar liquidez del mercado ahora frenará la inflación, pero es una medida extremadamente impopular. La alternativa es simplemente imprimir más billetes.</div>",
+        choices: [
+            { title: "APLICAR AHORRO FORZOSO (Plan Keynes)", hint: "Baja la inflación drásticamente, pero la gente sufre hoy.", impact: {moral: -25, inf: -30, debt: +10, mil: 0}, next: "fase3", news: "¡SALARIOS RECORTADOS POR LEY!", sub: "El Tesoro retiene el sueldo de los trabajadores 'para el futuro'." },
+            { title: "EMITIR MONEDA (Rechazar a Keynes)", hint: "Mantiene la paz social temporal, pero la inflación se descontrola.", impact: {moral: +10, inf: +40, debt: 0, mil: 0}, next: "fase3", news: "LA MÁQUINA DE IMPRIMIR BILLETES NO FRENA", sub: "El dinero pierde su valor semana a semana." }
+        ]
+    },
+    {
+        id: "fase3", date: "MARZO 1941", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/FDR_signs_Lend-Lease.jpg",
+        title: "EL COSTO DEL PRÉSTAMO Y ARRIENDO",
+        text: "Nos hemos quedado sin Oro. EE.UU. ofrece salvarnos con el programa 'Lend-Lease' enviando tanques y comida ilimitada.<br><br>A cambio, exigen que liquidemos nuestras reservas extranjeras y aceptemos el libre comercio en la posguerra, destruyendo el monopolio económico de nuestro Imperio.",
+        choices: [
+            { title: "ACEPTAR (Firmar la dependencia de EE.UU.)", hint: "Salva el esfuerzo militar. Dispara la deuda externa a niveles récord.", impact: {moral: 0, inf: 0, debt: +50, mil: +40}, next: "fase4", news: "SALVADOS POR WASHINGTON", sub: "Gran Bretaña hipoteca su futuro a cambio de tanques americanos." },
+            { title: "RECHAZAR (Austeridad Imperial)", hint: "Protege la soberanía financiera. Colapso inminente de la capacidad militar.", impact: {moral: -15, inf: +10, debt: 0, mil: -30}, next: "fase4", news: "CRIANDO FUERZAS EN LA ESCASEZ", sub: "El ejército sufre falta de insumos tras rechazar la ayuda externa." }
+        ]
+    },
+    {
+        id: "fase4", date: "DICIEMBRE 1941", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Women_at_work_during_the_Second_World_War_TR1141.jpg",
+        title: "LA CRISIS DE MANO DE OBRA",
+        text: "No quedan hombres. Las fábricas están operando al 40%. La única solución macroeconómica es sancionar el reclutamiento laboral femenino obligatorio.<br><br><div class='economic-note'>Forzar la inserción laboral aumenta drásticamente la capacidad productiva del Estado, pero genera tensiones sociales sin precedentes.</div>",
+        choices: [
+            { title: "RECLUTAMIENTO FEMENINO OBLIGATORIO", hint: "Expande el PBI militar, pero aumenta el desgaste social.", impact: {moral: -20, inf: 0, debt: 0, mil: +25}, next: "fase5", news: "MUJERES AL FRENTE INDUSTRIAL", sub: "Millones son llamadas a las fábricas de municiones por decreto." },
+            { title: "TRABAJO VOLUNTARIO Y HORAS EXTRAS", hint: "Mantiene la paz social. Fuerte déficit productivo.", impact: {moral: +10, inf: 0, debt: +10, mil: -15}, next: "fase5", news: "DÉFICIT EN LAS LÍNEAS DE ENSAMBLAJE", sub: "Las fábricas británicas no logran cumplir las cuotas de guerra." }
+        ]
+    },
+    {
+        id: "fase5", date: "NOVIEMBRE 1942", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/1/1d/William_Beveridge%2C_1st_Baron_Beveridge.jpg",
+        title: "EL INFORME BEVERIDGE",
+        text: "En pleno bombardeo, un informe propone crear el 'Estado de Bienestar' en la posguerra: salud pública gratuita y seguros de desempleo.<br><br>Es impagable ahora mismo, pero promete a la clase obrera una recompensa por sus sacrificios. El Tesoro exige austeridad; los sociólogos exigen promesas.",
+        choices: [
+            { title: "COMPROMETERSE AL ESTADO DE BIENESTAR", hint: "La moral social sube drásticamente. La deuda pública se compromete a futuro.", impact: {moral: +40, inf: +10, debt: +20, mil: 0}, next: "fase6", news: "EL PLAN BEVERIDGE TRAE ESPERANZA", sub: "El gobierno promete salud y educación gratuita para la posguerra." },
+            { title: "ARCHIVAR EL INFORME (Austeridad)", hint: "Protege las cuentas del Estado. Desploma la moral civil.", impact: {moral: -30, inf: 0, debt: -10, mil: 0}, next: "fase6", news: "AUSTERIDAD ANTE TODO", sub: "El Tesoro entierra las promesas sociales por falta de fondos." }
+        ]
+    },
+    {
+        id: "fase6", date: "JUNIO 1944", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Into_the_Jaws_of_Death_23-0453M_edit.jpg",
+        title: "EL DESEMBARCO DE NORMANDÍA",
+        text: "El esfuerzo final. Liberar Europa (Día D) requiere vaciar absolutamente todas las reservas de suministros civiles y desviarlas a la logística militar.<br><br><div class='economic-note'>Este último esfuerzo fiscal puede quebrar definitivamente la balanza de pagos o asegurar la victoria aplastante.</div>",
+        choices: [
+            { title: "SACRIFICIO TOTAL PARA EL DÍA D", hint: "Poder militar máximo. Quiebra civil e inflacionaria.", impact: {moral: -20, inf: +20, debt: +15, mil: +30}, next: "final", news: "TODO POR LA VICTORIA", sub: "El país queda seco de recursos mientras las tropas cruzan el canal." },
+            { title: "MANTENER RESERVAS CIVILES", hint: "Protege la macroeconomía de posguerra. Riesgo militar altísimo.", impact: {moral: +15, inf: -10, debt: -10, mil: -25}, next: "final", news: "EL EJÉRCITO PIDE MÁS", sub: "El Tesoro se niega a vaciar los graneros para la invasión." }
+        ]
+    },
+    {
+        id: "final", date: "AGOSTO 1945", 
+        photo: "https://upload.wikimedia.org/wikipedia/commons/c/c8/VE_Day_Crowds%2C_London%2C_England%2C_May_8_1945.jpg",
+        title: "EVALUACIÓN MACROECONÓMICA FINAL",
+        text: "<div id='final-report'></div>",
+        choices: [{ title: "CERRAR EXPEDIENTE", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE", sub: "Una nueva era económica comienza." }]
+    }
+];
+
+function updateUI() {
+    for(let k in stats) { stats[k] = Math.max(0, Math.min(100, stats[k])); }
+    document.getElementById('fill-moral').style.width = stats.moral + "%";
+    document.getElementById('fill-inf').style.width = stats.inf + "%";
+    document.getElementById('fill-debt').style.width = stats.debt + "%";
+    document.getElementById('fill-mil').style.width = stats.mil + "%";
+    
+    // Warning colors
+    document.getElementById('fill-inf').style.backgroundColor = stats.inf > 70 ? "#8b0000" : "#e74c3c";
+    document.getElementById('fill-debt').style.backgroundColor = stats.debt > 70 ? "#8b0000" : "#e67e22";
+    document.getElementById('fill-moral').style.backgroundColor = stats.moral < 30 ? "#c0392b" : "#2ecc71";
+}
+
+function buildReport() {
+    let rep = "<p>La guerra ha concluido. El análisis de su gestión arroja los siguientes resultados:</p><hr>";
+    
+    if(stats.mil >= 60) rep += "<p><b>Victoria Militar:</b> Logró abastecer al frente. Alemania fue derrotada gracias al enorme esfuerzo logístico de la nación.</p>";
+    else rep += "<p><b>Estancamiento Militar:</b> Su falta de financiamiento dejó al ejército paralizado. La guerra se ganó sólo gracias a la intervención extranjera directa.</p>";
+
+    if(stats.inf >= 70) rep += "<p><b>Hiperinflación:</b> Emitió sin control. Los ahorros de la clase media se evaporaron, destruyendo el poder adquisitivo.</p>";
+    else rep += "<p><b>Estabilidad de Precios:</b> Logró contener el flagelo inflacionario, una hazaña rara en una economía de guerra.</p>";
+
+    if(stats.debt >= 70) rep += "<p><b>Colonia Financiera:</b> El país está en bancarrota. La enorme deuda externa con EE.UU. dictará nuestra política durante las próximas 5 décadas.</p>";
+    else rep += "<p><b>Soberanía Económica:</b> Mantuvo las finanzas bajo control relativo, salvando parte de nuestra independencia financiera.</p>";
+
+    if(stats.moral >= 60) rep += "<p><b>Paz Social:</b> Sentó las bases para el Estado de Bienestar. La población está lista para reconstruir el país unida.</p>";
+    else rep += "<p><b>Fractura Social:</b> Las huelgas y el malestar dominan las calles. Las exigencias al pueblo fueron excesivas sin promesas a cambio.</p>";
+
+    return rep;
+}
+
+function renderPhase(id) {
+    if(id === "intro") { stats = { moral: 80, inf: 10, debt: 20, mil: 20 }; updateUI(); }
+    
+    let p = phases.find(x => x.id === id);
+    playPaper();
+
+    document.getElementById('ui-date').innerText = p.date;
+    document.getElementById('ui-title').innerText = p.title;
+    
+    // Foto
+    let photoBox = document.getElementById('ui-photo-box');
+    if(p.photo) {
+        document.getElementById('ui-photo').src = p.photo;
+        photoBox.style.display = "flex";
+    } else {
+        photoBox.style.display = "none";
+    }
+    
+    if(id === "final") {
+        document.getElementById('ui-text').innerHTML = buildReport();
+    } else {
+        document.getElementById('ui-text').innerHTML = p.text;
     }
 
-    // Iniciar el juego
-    renderNode('inicio');
-</script>
+    let box = document.getElementById('choices-box');
+    box.innerHTML = "";
+    
+    p.choices.forEach((c, idx) => {
+        let btn = document.createElement('button');
+        btn.className = 'decision-btn';
+        let html = `<span class="btn-title">SELLO: ${c.title}</span>`;
+        if(c.hint) html += `<span class="btn-hint">${c.hint}</span>`;
+        
+        // El sello animado
+        html += `<div class="stamp-effect" id="stamp-${idx}">APROBADO</div>`;
+        btn.innerHTML = html;
 
+        btn.onclick = () => {
+            enterFullScreen();
+            playStamp();
+            document.getElementById(`stamp-${idx}`).classList.add('stamp-animate');
+            
+            if(c.impact) {
+                stats.moral += c.impact.moral; stats.inf += c.impact.inf;
+                stats.debt += c.impact.debt; stats.mil += c.impact.mil;
+                updateUI();
+            }
+
+            setTimeout(() => {
+                document.getElementById('news-headline').innerText = c.news;
+                document.getElementById('news-subhead').innerText = c.sub;
+                document.getElementById('newspaper-modal').style.display = 'flex';
+                nextPhaseId = c.next;
+            }, 600);
+        };
+        box.appendChild(btn);
+    });
+}
+
+function nextPhase() {
+    document.getElementById('newspaper-modal').style.display = 'none';
+    document.getElementById('dossier-wrapper').scrollTop = 0;
+    
+    // Animar la entrada del papel
+    let paper = document.getElementById('paper-doc');
+    paper.style.animation = 'none';
+    void paper.offsetWidth; 
+    paper.style.animation = 'slideIn 0.5s ease-out';
+    
+    renderPhase(nextPhaseId);
+}
+
+window.onload = () => {
+    updateUI();
+    renderPhase('intro');
+};
+
+</script>
 </body>
 </html>
