@@ -204,6 +204,33 @@ const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '</svg>'
 );
 
+// --- CARGA ROBUSTA DE IMÁGENES ---
+// Root cause de las fallas "a veces": los hotlinks a Wikimedia pueden fallar
+// de forma transitoria (corte momentáneo de red, redirect de Special:FilePath
+// que no llega a tiempo, CDN lento en el celular, etc). Un solo intento fallido
+// dejaba la imagen rota para siempre en esa fase. Ahora se reintenta unas
+// pocas veces con backoff antes de rendirse y mostrar el cartel de repuesto.
+function loadPhotoWithRetry(imgEl, url, attempt) {
+    attempt = attempt || 0;
+    const MAX_RETRIES = 3;
+    const DELAY_MS = 700;
+
+    // Forzar recarga real (evita que el navegador reuse una respuesta fallida cacheada)
+    const bustedUrl = url + (url.includes('?') ? '&' : '?') + '_retry=' + attempt;
+
+    const tempImg = new Image();
+    tempImg.referrerPolicy = 'no-referrer';
+    tempImg.onload = () => { imgEl.src = tempImg.src; };
+    tempImg.onerror = () => {
+        if (attempt < MAX_RETRIES) {
+            setTimeout(() => loadPhotoWithRetry(imgEl, url, attempt + 1), DELAY_MS * (attempt + 1));
+        } else {
+            imgEl.src = FALLBACK_IMG;
+        }
+    };
+    tempImg.src = bustedUrl;
+}
+
 let actx = null;
 function getAudioContext() {
     if (actx) return actx;
@@ -282,7 +309,7 @@ const storyTree = {
     },
 
     alt_fascismo: {
-        date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_Mosley_1925.jpg", altHistory: true,
+        date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_mosley_MP.jpg", altHistory: true,
         title: "EL ESTADO TÍTERE",
         text: "<b>FINAL LOCO:</b> Sin fuerzas armadas para defendernos, Alemania invadió Gran Bretaña sin resistencia. Oswald Mosley y la Unión Británica de Fascistas han tomado el poder en Londres bajo la tutela de Berlín.<br><br>Su economía de superávit ahora es expoliada para alimentar al Tercer Reich. Ha perdido el Imperio y la libertad.",
         choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL IMPERIO HA CAÍDO", sub: "Oswald Mosley jura lealtad a Berlín." }]
@@ -299,7 +326,7 @@ const storyTree = {
 
     // --- RAMA ALTERNATIVA: GUERRA BIOLÓGICA ---
     alt_guerra_biologica: {
-        date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island_warning_sign.jpg", altHistory: true,
+        date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island.jpg", altHistory: true,
         title: "OPERACIÓN VEGETARIANO",
         text: "El proyecto biológico está listo. Consiste en lanzar millones de pasteles de linaza infectados con Ántrax sobre los campos alemanes. Destruirá su agricultura y matará a millones, ganando la guerra sin gastar en tanques.<br><br>Los científicos advierten que las esporas podrían cruzar el canal y contaminar nuestro propio suministro de alimentos, quebrando la economía.",
         choices: [
@@ -309,7 +336,7 @@ const storyTree = {
     },
 
     alt_cuarentena: {
-        date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/WW2_Gas_Mask_Box_and_Gas_Mask.jpg", altHistory: true,
+        date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/British_gas_mask.jpg", altHistory: true,
         title: "EL APOCALIPSIS SILENCIOSO",
         text: "<b>FINAL LOCO:</b> La Operación Vegetariano aniquiló a Alemania en semanas. La guerra se ganó muy barata.<br><br>Pero los vientos cambiaron. El ántrax cruzó el Canal de la Mancha. Toda la ganadería británica murió. La inflación alimentaria llegó al 10.000%. Gran Bretaña ganó la guerra, pero la isla es un páramo tóxico e inhabitable. El gobierno ha huido a Canadá.",
         choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL REY HUYE A CANADÁ", sub: "Europa es declarada zona muerta por contaminación biológica." }]
@@ -338,7 +365,7 @@ const storyTree = {
     },
 
     alt_revolucion: {
-        date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Soviet_flag_on_the_Reichstag_roof_Cobb.jpg", altHistory: true,
+        date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Raising_a_flag_over_the_Reichstag.jpg", altHistory: true,
         title: "LA REVOLUCIÓN DE LONDRES",
         text: "<b>FINAL LOCO:</b> El ejército se negó a disparar a sus compatriotas hambrientos y se unió a los huelguistas. Churchill ha sido derrocado. Se ha proclamado la República Socialista de Gran Bretaña y se ha firmado la paz incondicional con el Eje.<br><br>La macroeconomía capitalista ha dejado de existir en la isla.",
         choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "¡REVOLUCIÓN OBRERA!", sub: "La bandera roja ondea sobre el Palacio de Buckingham." }]
@@ -346,7 +373,7 @@ const storyTree = {
 
     // --- CONTINUACIÓN HISTÓRICA ---
     mano_obra: {
-        date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Women_at_work_during_the_Second_World_War_TR1141.jpg", altHistory: false,
+        date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/A_woman_war_worker_machining_a_cylinder_block_for_a_Rolls_Royce_aero_engine._TR1141.jpg", altHistory: false,
         title: "LA CRISIS DE MANO DE OBRA",
         text: "La maquinaria financiera de EE.UU. nos da el acero, pero no quedan hombres para ensamblarlo. Las fábricas están operando al 40%. La solución macroeconómica es sancionar el reclutamiento laboral femenino obligatorio.<br><br>Forzar la inserción laboral aumenta drásticamente el PBI, pero rompe el tejido social conservador de la época.",
         choices: [
@@ -434,7 +461,7 @@ function renderPhase(id) {
     let boxEl = document.getElementById('ui-photo-box');
     boxEl.style.display = 'block'; 
     imgEl.style.display = 'block';
-    imgEl.src = p.photo;
+    loadPhotoWithRetry(imgEl, p.photo);
     
     document.getElementById('alt-tag').style.display = p.altHistory ? "inline-block" : "none";
 
