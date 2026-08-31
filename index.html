@@ -19,7 +19,9 @@
         }
 
         #game-container {
-            width: 100%; max-width: 900px; height: 100vh; max-height: 900px;
+            width: 100%; max-width: 900px; 
+            height: 100dvh; /* dvh adapta la altura dinámicamente al celular */
+            max-height: 900px;
             display: flex; flex-direction: column; position: relative;
             background: #111; box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
@@ -27,7 +29,10 @@
         /* --- BARRA SUPERIOR DE ESTADÍSTICAS --- */
         #top-bar {
             background: #151515; border-bottom: 2px solid #8b0000;
-            display: flex; justify-content: space-around; padding: 12px;
+            display: flex; justify-content: space-around; 
+            padding: 12px;
+            /* La siguiente línea empuja la barra hacia abajo para esquivar la cámara/notch */
+            padding-top: max(30px, env(safe-area-inset-top)); 
             z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
         .stat-box { text-align: center; width: 22%; }
@@ -155,6 +160,7 @@
 <body>
 
     <div id="game-container">
+        
         <div id="top-bar">
             <div class="stat-box"><div class="stat-label">MORAL CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral"></div></div></div>
             <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf"></div></div></div>
@@ -276,7 +282,7 @@ const storyTree = {
     },
 
     alt_fascismo: {
-        date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_mosley_MP.jpg", altHistory: true,
+        date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_Mosley_1925.jpg", altHistory: true,
         title: "EL ESTADO TÍTERE",
         text: "<b>FINAL LOCO:</b> Sin fuerzas armadas para defendernos, Alemania invadió Gran Bretaña sin resistencia. Oswald Mosley y la Unión Británica de Fascistas han tomado el poder en Londres bajo la tutela de Berlín.<br><br>Su economía de superávit ahora es expoliada para alimentar al Tercer Reich. Ha perdido el Imperio y la libertad.",
         choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL IMPERIO HA CAÍDO", sub: "Oswald Mosley jura lealtad a Berlín." }]
@@ -293,7 +299,7 @@ const storyTree = {
 
     // --- RAMA ALTERNATIVA: GUERRA BIOLÓGICA ---
     alt_guerra_biologica: {
-        date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island.jpg", altHistory: true,
+        date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island_warning_sign.jpg", altHistory: true,
         title: "OPERACIÓN VEGETARIANO",
         text: "El proyecto biológico está listo. Consiste en lanzar millones de pasteles de linaza infectados con Ántrax sobre los campos alemanes. Destruirá su agricultura y matará a millones, ganando la guerra sin gastar en tanques.<br><br>Los científicos advierten que las esporas podrían cruzar el canal y contaminar nuestro propio suministro de alimentos, quebrando la economía.",
         choices: [
@@ -303,7 +309,7 @@ const storyTree = {
     },
 
     alt_cuarentena: {
-        date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/British_gas_mask.jpg", altHistory: true,
+        date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/WW2_Gas_Mask_Box_and_Gas_Mask.jpg", altHistory: true,
         title: "EL APOCALIPSIS SILENCIOSO",
         text: "<b>FINAL LOCO:</b> La Operación Vegetariano aniquiló a Alemania en semanas. La guerra se ganó muy barata.<br><br>Pero los vientos cambiaron. El ántrax cruzó el Canal de la Mancha. Toda la ganadería británica murió. La inflación alimentaria llegó al 10.000%. Gran Bretaña ganó la guerra, pero la isla es un páramo tóxico e inhabitable. El gobierno ha huido a Canadá.",
         choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL REY HUYE A CANADÁ", sub: "Europa es declarada zona muerta por contaminación biológica." }]
@@ -332,7 +338,7 @@ const storyTree = {
     },
 
     alt_revolucion: {
-        date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Raising_a_flag_over_the_Reichstag.jpg", altHistory: true,
+        date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Soviet_flag_on_the_Reichstag_roof_Cobb.jpg", altHistory: true,
         title: "LA REVOLUCIÓN DE LONDRES",
         text: "<b>FINAL LOCO:</b> El ejército se negó a disparar a sus compatriotas hambrientos y se unió a los huelguistas. Churchill ha sido derrocado. Se ha proclamado la República Socialista de Gran Bretaña y se ha firmado la paz incondicional con el Eje.<br><br>La macroeconomía capitalista ha dejado de existir en la isla.",
         choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "¡REVOLUCIÓN OBRERA!", sub: "La bandera roja ondea sobre el Palacio de Buckingham." }]
@@ -340,7 +346,7 @@ const storyTree = {
 
     // --- CONTINUACIÓN HISTÓRICA ---
     mano_obra: {
-        date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/A_woman_war_worker_machining_a_cylinder_block_for_a_Rolls_Royce_aero_engine._TR1141.jpg", altHistory: false,
+        date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Women_at_work_during_the_Second_World_War_TR1141.jpg", altHistory: false,
         title: "LA CRISIS DE MANO DE OBRA",
         text: "La maquinaria financiera de EE.UU. nos da el acero, pero no quedan hombres para ensamblarlo. Las fábricas están operando al 40%. La solución macroeconómica es sancionar el reclutamiento laboral femenino obligatorio.<br><br>Forzar la inserción laboral aumenta drásticamente el PBI, pero rompe el tejido social conservador de la época.",
         choices: [
