@@ -284,145 +284,139 @@ function enterFullScreen() {
 let stats = { moral: 80, inf: 10, debt: 20, mil: 20 };
 let nextPhaseId = null;
 
-// --- ÁRBOL NARRATIVO EXTENDIDO CON FINALES LOCOS ---
+// --- ÁRBOL NARRATIVO EXTENDIDO CON NARRATIVA VISCERAL Y FINALES LOCOS ---
 const storyTree = {
     intro: {
         date: "MAYO 1940", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_As_Prime_Minister_1940-1945_MH26392.jpg", altHistory: false,
         title: "LA CAÍDA DE FRANCIA",
-        text: "Europa ha caído. Gran Bretaña está sola frente a Alemania. Como Ministro de Hacienda, su tarea es financiar una guerra imposible.<br><br>Lord Halifax y la aristocracia proponen negociar un pacto de no agresión con Hitler para salvar la economía y el Imperio. Churchill exige reconvertir toda la industria civil para resistir a cualquier costo.",
+        text: "París ha caído. El olor a pólvora cruza el Canal de la Mancha y se cuela en tu gabinete subterráneo. Estás acorralado. Los reportes indican que las arcas del Tesoro sangran y el PBI se desploma a niveles de la Edad Media.<br><br>Lord Halifax, pálido y temblando, te ruega firmar un pacto humillante con Hitler para salvar la libra esterlina. En la otra cabecera, Winston Churchill golpea la mesa exigiendo exprimir hasta la última gota de sudor civil para fabricar balas. Si tu pulso tiembla al firmar hoy, mañana esta isla hablará alemán.",
         choices: [
-            { title: "RECONVERSIÓN BÉLICA (Línea Histórica)", hint: "Destruye el PBI civil para fabricar armas.", impact: {moral: -10, inf: +20, debt: +20, mil: +30}, next: "blitz", news: "¡SANGRE, ESFUERZO, LÁGRIMAS Y SUDOR!", sub: "Churchill rechaza la paz. El país se prepara para el asedio." },
-            { title: "FIRMAR EL PACTO DE HALIFAX (Línea Alternativa)", hint: "Salva la economía temporalmente.", impact: {moral: +20, inf: -10, debt: -10, mil: -20}, next: "alt_paz", news: "GRAN BRETAÑA FIRMA LA PAZ", sub: "El gobierno pacta con Alemania. La economía respira." }
+            { title: "DESTROZAR LA ECONOMÍA CIVIL (Línea Histórica)", hint: "Reconversión bélica total. Exprime el PBI.", impact: {moral: -10, inf: +20, debt: +20, mil: +30}, next: "blitz", news: "¡SANGRE, ESFUERZO, LÁGRIMAS Y SUDOR!", sub: "Churchill rechaza la paz. El país se prepara para el matadero." },
+            { title: "PACTAR CON EL DIABLO (Línea Alternativa)", hint: "Firma la paz. Salva las cuentas del Estado.", impact: {moral: +20, inf: -10, debt: -10, mil: -20}, next: "alt_paz", news: "LONDRES SE RINDE AL PACTO", sub: "El gobierno pacta con Alemania. La libra esterlina respira." }
         ]
     },
     
-    // --- RAMA HISTÓRICA ---
     blitz: {
         date: "SEPTIEMBRE 1940", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/WWII_London_Blitz_East_London.jpg", altHistory: false,
         title: "EL BLITZ Y LA INFLACIÓN",
-        text: "Londres está bajo fuego. Las fábricas de bienes de consumo cerraron. Al sobrar billetes y faltar productos, la <b>inflación se está descontrolando</b>.<br><br>John Maynard Keynes propone implementar un sistema de 'Ahorro Forzoso' confiscando parte del salario obrero para enfriar la economía. Winston Churchill, desesperado, le muestra el expediente 'Operación Vegetariano': un arma biológica ultra-secreta.",
+        text: "El techo del búnker tiembla con cada bomba de la Luftwaffe. Arriba las sirenas aúllan; abajo tus números aúllan más fuerte. Cerraste las fábricas civiles para ensamblar bombarderos. El resultado: estantes vacíos y miles de billetes persiguiendo la nada. <b>La hiperinflación te respira en la nuca.</b><br><br>El economista John Maynard Keynes desliza una carpeta amarillenta: 'Ahorro Forzoso'. Propone confiscar los salarios obreros por decreto para secar la calle de efectivo. Churchill, desesperado, te acerca otro expediente clasificado: un arma biológica ultra-secreta de bajo costo.",
         choices: [
-            { title: "APLICAR AHORRO FORZOSO (Histórico)", hint: "Baja la inflación, asfixia al pueblo.", impact: {moral: -25, inf: -30, debt: +10, mil: +10}, next: "lend_lease", news: "EL TESORO CONFISCA SALARIOS", sub: "El Plan Keynes se implementa por decreto." },
-            { title: "AUTORIZAR OPERACIÓN VEGETARIANO (Alternativa)", hint: "Gasto en armas biológicas de bajo costo.", impact: {moral: -10, inf: +20, debt: 0, mil: +40}, next: "alt_guerra_biologica", news: "NUBES OSCURAS EN EL TESORO", sub: "El gobierno financia proyectos clasificados letales." }
+            { title: "ROBARLES EL SUELDO HOY (Plan Keynes)", hint: "Baja la inflación, asfixia al pueblo en vida.", impact: {moral: -25, inf: -30, debt: +10, mil: +10}, next: "lend_lease", news: "¡EL TESORO NOS ROBA EL SUDOR!", sub: "Huelgas masivas mientras el Ministro confisca las pagas por decreto." },
+            { title: "DESTAPAR EL FRASCO BIOLÓGICO", hint: "Operación Vegetariano. Terrorismo de bajo costo fiscal.", impact: {moral: -10, inf: +20, debt: 0, mil: +40}, next: "alt_guerra_biologica", news: "NUBES OSCURAS EN EL TESORO", sub: "El gobierno desvía fondos hacia proyectos clasificados macabros." }
         ]
     },
 
-    // --- RAMA ALTERNATIVA: PAZ ENGAÑOSA ---
     alt_paz: {
         date: "ENERO 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Lord_Halifax_1937.jpg", altHistory: true,
         title: "LA PAZ ENGAÑOSA",
-        text: "Al no haber guerra, el PBI británico florece. Las fábricas producen automóviles y bienes de lujo. La deuda ha bajado.<br><br>Sin embargo, la inteligencia militar advierte que Alemania está reuniendo una flota de invasión en Francia para aniquilarnos de un golpe.",
+        text: "En las calles de Londres la gente bebe cerveza y compra abrigos. Al no haber guerra, el PBI británico florece y el déficit es nulo. Pero el silencio es sepulcral.<br><br>La inteligencia militar te arroja fotos sobre la mesa: Hitler está reuniendo la armada más grande de la historia al otro lado del canal. Tu país no tiene ni un solo tanque para defenderse. El superávit fiscal es ahora la soga al cuello de la nación.",
         choices: [
-            { title: "ARMAR AL PAÍS EN SECRETO", hint: "Reencauza la historia. Despierta las sospechas de Berlín.", impact: {moral: -10, inf: +15, debt: +20, mil: +20}, next: "alt_traicion", news: "REARME SECRETO DESCUBIERTO", sub: "El pacto pende de un hilo." },
-            { title: "MANTENER LA ECONOMÍA CIVIL Y ESPERAR", hint: "Ignora a los militares. Aumenta el superávit.", impact: {moral: +20, inf: 0, debt: -20, mil: -20}, next: "alt_fascismo", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
+            { title: "ARMAR AL PAÍS EN LA OSCURIDAD", hint: "Destruye el superávit. Despierta las sospechas de Berlín.", impact: {moral: -10, inf: +15, debt: +20, mil: +20}, next: "alt_traicion", news: "RUIDO DE FÁBRICAS EN LA NOCHE", sub: "Rumores de rearme masivo ponen el pacto de paz al borde del abismo." },
+            { title: "DISFRUTAR EL ESPEJISMO Y ESPERAR", hint: "Mantiene la macroeconomía perfecta. Ignora la amenaza.", impact: {moral: +20, inf: 0, debt: -20, mil: -20}, next: "alt_fascismo", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
         ]
     },
 
     alt_fascismo: {
         date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_mosley_MP.jpg", altHistory: true,
         title: "EL ESTADO TÍTERE",
-        text: "<b>FINAL LOCO:</b> Sin fuerzas armadas para defendernos, Alemania invadió Gran Bretaña sin resistencia. Oswald Mosley y la Unión Británica de Fascistas han tomado el poder en Londres bajo la tutela de Berlín.<br><br>Su economía de superávit ahora es expoliada para alimentar al Tercer Reich. Ha perdido el Imperio y la libertad.",
-        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL IMPERIO HA CAÍDO", sub: "Oswald Mosley jura lealtad a Berlín." }]
+        text: "<b>FINAL LOCO:</b> Las sirenas ni siquiera sonaron. Sin ejército para defender la isla, los tanques alemanes desfilaron frente al Big Ben sin disparar un tiro. Oswald Mosley y sus camisas negras han tomado el parlamento bajo tutela nazi.<br><br>La próspera economía civil que tanto cuidaste ahora es expoliada para alimentar la maquinaria de guerra del Tercer Reich. Sobreviviste a la recesión, pero perdiste el país.",
+        choices: [{ title: "ASUMIR LA DERROTA TOTAL", impact: null, next: "intro", news: "EL IMPERIO HA CAÍDO", sub: "Oswald Mosley jura lealtad a Berlín en una Londres ocupada." }]
     },
 
     alt_traicion: {
         date: "NOVIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Heinkel_He_111_during_the_Battle_of_Britain.jpg", altHistory: true,
         title: "OPERACIÓN LEÓN MARINO",
-        text: "<b>¡TRAICIÓN!</b> Alemania ha roto el pacto. La Luftwaffe está arrasando las fábricas. <br><br>El gobierno pacífico ha caído. Hemos sido arrastrados de nuevo a la historia, pero con una economía totalmente desprevenida para el conflicto. Debemos rogarle a Estados Unidos que nos salve.",
+        text: "<b>¡TRAICIÓN!</b> Las alarmas destrozan la madrugada. Alemania rompió el pacto. La Luftwaffe está reduciendo a cenizas las fábricas civiles que te negaste a militarizar.<br><br>La paz era una farsa para ganar tiempo. Estás en guerra, pero con una economía de papel. O le suplicas de rodillas a Estados Unidos que te envíe armas, o mañana Londres será un cráter.",
         choices: [
-            { title: "SUPLICAR AYUDA A WASHINGTON", hint: "Reencauza la historia hacia el Lend-Lease.", impact: {moral: -40, inf: +30, debt: +60, mil: +30}, next: "lend_lease", news: "¡TRAICIÓN NAZI!", sub: "El pacto era una trampa. Gran Bretaña pide auxilio a EE.UU." }
+            { title: "SUPLICAR DE RODILLAS A WASHINGTON", hint: "Destroza el orgullo. Te hunde en deuda externa inmediata.", impact: {moral: -40, inf: +30, debt: +60, mil: +30}, next: "lend_lease", news: "¡LA LUFTWAFFE INCINERA LONDRES!", sub: "El pacto era una trampa. Gran Bretaña, arrodillada, ruega auxilio a EE.UU." }
         ]
     },
 
-    // --- RAMA ALTERNATIVA: GUERRA BIOLÓGICA ---
     alt_guerra_biologica: {
         date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island.jpg", altHistory: true,
-        title: "OPERACIÓN VEGETARIANO",
-        text: "El proyecto biológico está listo. Consiste en lanzar millones de pasteles de linaza infectados con Ántrax sobre los campos alemanes. Destruirá su agricultura y matará a millones, ganando la guerra sin gastar en tanques.<br><br>Los científicos advierten que las esporas podrían cruzar el canal y contaminar nuestro propio suministro de alimentos, quebrando la economía.",
+        title: "LA RULETA RUSA BIOLÓGICA",
+        text: "Churchill destapa un frasco sellado. 'Operación Vegetariano'. Millones de pasteles de linaza infectados con Ántrax listos para llover sobre Alemania. Matará a su ganado y a millones de civiles. Ganarás la guerra sin gastar una sola libra esterlina.<br><br>Pero los biólogos están sudando frío: si el viento cambia, las esporas cruzarán el canal y exterminarán la agricultura británica. Es la jugada fiscal más barata y macabra de la historia.",
         choices: [
-            { title: "EJECUTAR BOMBARDEO CON ÁNTRAX", hint: "Peligro biológico extremo. Final Incierto.", impact: {moral: -50, inf: +50, debt: 0, mil: +80}, next: "alt_cuarentena", news: "LLUEVEN PASTELES EN ALEMANIA", sub: "La Royal Air Force despliega un arma nunca antes vista." },
-            { title: "CANCELAR Y PEDIR AYUDA A EE.UU.", hint: "Reencauza la historia. Se rinde a la deuda.", impact: {moral: +10, inf: 0, debt: +40, mil: -10}, next: "lend_lease", news: "EL GOBIERNO FRENA LA LOCURA", sub: "Churchill retrocede ante el terror del Ántrax y recurre a EE.UU." }
+            { title: "DESATAR EL INFIERNO BIOLÓGICO", hint: "Peligro de extinción. Economía ahorrada, mundo arrasado.", impact: {moral: -50, inf: +50, debt: 0, mil: +80}, next: "alt_cuarentena", news: "LLUEVE MUERTE EN EUROPA", sub: "La Royal Air Force despliega un arma química de pesadilla." },
+            { title: "RETROCEDER Y PEDIR LIMOSNA A EE.UU.", hint: "Vuelve a la historia real. Te rindes a la deuda externa.", impact: {moral: +10, inf: 0, debt: +40, mil: -10}, next: "lend_lease", news: "EL GOBIERNO FRENA LA LOCURA", sub: "Churchill retrocede ante el terror del Ántrax y mira hacia América." }
         ]
     },
 
     alt_cuarentena: {
         date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/British_gas_mask.jpg", altHistory: true,
         title: "EL APOCALIPSIS SILENCIOSO",
-        text: "<b>FINAL LOCO:</b> La Operación Vegetariano aniquiló a Alemania en semanas. La guerra se ganó muy barata.<br><br>Pero los vientos cambiaron. El ántrax cruzó el Canal de la Mancha. Toda la ganadería británica murió. La inflación alimentaria llegó al 10.000%. Gran Bretaña ganó la guerra, pero la isla es un páramo tóxico e inhabitable. El gobierno ha huido a Canadá.",
-        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL REY HUYE A CANADÁ", sub: "Europa es declarada zona muerta por contaminación biológica." }]
+        text: "<b>FINAL LOCO:</b> Alemania es un cementerio silencioso. Ganaste muy barato.<br><br>Pero los vientos cambiaron y la nube negra cruzó el canal. Hoy, no queda una sola vaca viva en Gran Bretaña. Los cultivos se pudren. La inflación de un pedazo de pan llega al 10.000%. El dinero no se come. La isla es un páramo tóxico inhabitable y el Rey acaba de huir a Canadá. La macroeconomía ha muerto.",
+        choices: [{ title: "CERRAR EL ATAÚD DE LA NACIÓN", impact: null, next: "intro", news: "EL REY HUYE A CANADÁ", sub: "La isla británica es declarada zona muerta por contaminación biológica." }]
     },
 
-    // --- CONTINUACIÓN HISTÓRICA ---
     lend_lease: {
         date: "MARZO 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/President_Franklin_D._Roosevelt-1941.jpg", altHistory: false,
         title: "LA QUIEBRA DEL IMPERIO",
-        text: "Nos hemos quedado sin Oro. EE.UU. ofrece salvarnos con el programa 'Lend-Lease', enviando armamento ilimitado.<br><br>El costo económico: exigen que liquidemos nuestras reservas extranjeras y desmantelemos nuestro monopolio comercial. Es el fin de la libra esterlina como moneda global y el paso de la hegemonía a Washington.",
+        text: "Las bóvedas del Banco de Inglaterra están vacías. No queda oro. No quedan dólares. Roosevelt te ofrece la salvación: la ley 'Lend-Lease'. Munición y tanques ilimitados.<br><br>El diablo está en la letra chica: Washington exige que desmanteles tu monopolio imperial y les entregues la hegemonía financiera mundial. Firmar significa salvar tu vida hoy a cambio de entregar tu imperio mañana.",
         choices: [
-            { title: "ACEPTAR EL LEND-LEASE (Histórico)", hint: "El ejército se salva. La Deuda Externa se vuelve inmanejable.", impact: {moral: 0, inf: 0, debt: +40, mil: +40}, next: "mano_obra", news: "ALIANZA DE PLATA", sub: "EE.UU. nos financia la guerra a cambio de nuestro dominio económico." },
-            { title: "RECHAZAR (Autarquía Imperial)", hint: "Protege la soberanía. Las tropas se quedan sin municiones.", impact: {moral: -15, inf: +20, debt: 0, mil: -35}, next: "alt_hambre", news: "ORGULLO IMPERIAL", sub: "Gran Bretaña peleará sola, sin dinero ni suministros extranjeros." }
+            { title: "ARRODILLARSE ANTE WASHINGTON (Lend-Lease)", hint: "El ejército respira. La deuda hipoteca tu futuro por 50 años.", impact: {moral: 0, inf: 0, debt: +40, mil: +40}, next: "mano_obra", news: "ALIANZA DE PLATA Y DEUDA", sub: "EE.UU. nos financia la supervivencia a cambio de nuestro imperio económico." },
+            { title: "AFERRARSE AL ORGULLO IMPERIAL (Autarquía)", hint: "Defiende la soberanía financiera. Las tropas no tienen balas.", impact: {moral: -15, inf: +20, debt: 0, mil: -35}, next: "alt_hambre", news: "MORDER LA BALA EN SOLEDAD", sub: "Gran Bretaña peleará sola, sin dólares americanos ni suministros." }
         ]
     },
 
-    // --- RAMA ALTERNATIVA: REVOLUCIÓN ---
     alt_hambre: {
         date: "ENERO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Rally_in_Hyde_Park_during_the_General_Strike_of_1926.jpg", altHistory: true,
-        title: "COLAPSO DE LA AUTARQUÍA",
-        text: "Rechazar a EE.UU. fue un error logístico letal. El pan está racionado a 100 gramos por semana. Las fábricas de tanques están detenidas por falta de acero.<br><br>Están estallando huelgas masivas y motines en los puertos. Las ideas comunistas se esparcen por la hambruna. El gobierno está a punto de caer.",
+        title: "LA FACTURA DEL ORGULLO",
+        text: "El orgullo se paga con sangre. Sin los dólares americanos, los puertos están secos. La ración de pan bajó a 100 gramos. Las madres hierven cuero para engañar al estómago. Las fábricas de tanques son galpones vacíos.<br><br>En los muelles, los obreros famélicos levantan banderas rojas y se niegan a ensamblar fusiles oxidados. La revolución comunista respira en tu nuca y el gobierno tambalea al borde del abismo.",
         choices: [
-            { title: "CAPITULAR ANTE ESTADOS UNIDOS", hint: "Reencauza la historia. Acepta el rescate americano.", impact: {moral: -10, inf: 0, debt: +60, mil: +30}, next: "mano_obra", news: "COLAPSO SOCIAL EVITADO", sub: "Ante los motines, el gobierno se rinde y acepta los dólares americanos." },
-            { title: "MANDAR AL EJÉRCITO A REPRIMIR", hint: "Intentar sofocar las huelgas con violencia.", impact: {moral: -50, inf: 0, debt: 0, mil: -20}, next: "alt_revolucion", news: "FUEGO EN LAS CALLES", sub: "El ejército dispara contra obreros hambrientos." }
+            { title: "TRAGARSE EL ORGULLO Y CAPITULAR", hint: "Reencauza la historia. Acepta el rescate americano tarde y caro.", impact: {moral: -10, inf: 0, debt: +60, mil: +30}, next: "mano_obra", news: "COLAPSO SOCIAL EVITADO EN EL LÍMITE", sub: "Ante los motines, el gobierno tira la toalla y acepta los dólares americanos." },
+            { title: "MANDAR AL EJÉRCITO A DISPARAR A OBREROS", hint: "Sofocar el hambre con plomo. Destrucción moral absoluta.", impact: {moral: -50, inf: 0, debt: 0, mil: -20}, next: "alt_revolucion", news: "FUEGO EN LAS CALLES DE LONDRES", sub: "El ejército recibe la orden de disparar contra los huelguistas hambrientos." }
         ]
     },
 
     alt_revolucion: {
         date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Raising_a_flag_over_the_Reichstag.jpg", altHistory: true,
         title: "LA REVOLUCIÓN DE LONDRES",
-        text: "<b>FINAL LOCO:</b> El ejército se negó a disparar a sus compatriotas hambrientos y se unió a los huelguistas. Churchill ha sido derrocado. Se ha proclamado la República Socialista de Gran Bretaña y se ha firmado la paz incondicional con el Eje.<br><br>La macroeconomía capitalista ha dejado de existir en la isla.",
-        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "¡REVOLUCIÓN OBRERA!", sub: "La bandera roja ondea sobre el Palacio de Buckingham." }]
+        text: "<b>FINAL LOCO:</b> Ordenaste abrir fuego, pero los soldados tenían tanta hambre como los obreros. Bajaron los rifles, se giraron en redondo y marcharon directo hacia tu búnker.<br><br>Winston Churchill ha sido colgado en Trafalgar Square. La nueva República Socialista de Gran Bretaña ha firmado la paz incondicional. El mercado libre, el capitalismo y tu cargo han sido abolidos para siempre.",
+        choices: [{ title: "CONTEMPLAR EL FIN DE LA ERA", impact: null, next: "intro", news: "¡REVOLUCIÓN OBRERA!", sub: "La bandera roja ondea sobre los escombros del Palacio de Buckingham." }]
     },
 
-    // --- CONTINUACIÓN HISTÓRICA ---
     mano_obra: {
         date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/A_woman_war_worker_machining_a_cylinder_block_for_a_Rolls_Royce_aero_engine._TR1141.jpg", altHistory: false,
-        title: "LA CRISIS DE MANO DE OBRA",
-        text: "La maquinaria financiera de EE.UU. nos da el acero, pero no quedan hombres para ensamblarlo. Las fábricas están operando al 40%. La solución macroeconómica es sancionar el reclutamiento laboral femenino obligatorio.<br><br>Forzar la inserción laboral aumenta drásticamente el PBI, pero rompe el tejido social conservador de la época.",
+        title: "MÁQUINAS SIN ALMAS",
+        text: "Estados Unidos te inunda de acero, pero los galpones están vacíos. Los hombres están pudriéndose en el frente; no hay manos humanas para ensamblar las balas.<br><br>La única salida macroeconómica es un decreto brutal: arrancar a millones de mujeres de sus hogares y obligarlas por ley a operar maquinaria pesada, destrozando el tejido conservador de la sociedad británica. O firmas el decreto, o los tanques de Washington se oxidan en el puerto.",
         choices: [
-            { title: "RECLUTAMIENTO FEMENINO OBLIGATORIO", hint: "Aumenta la fuerza industrial y militar.", impact: {moral: -15, inf: 0, debt: 0, mil: +20}, next: "beveridge", news: "MUJERES AL FRENTE INDUSTRIAL", sub: "Millones son llamadas a las fábricas de municiones por decreto." }
+            { title: "FORZAR EL RECLUTAMIENTO FEMENINO", hint: "Explota el PBI militar, desgarra el tejido social.", impact: {moral: -15, inf: 0, debt: 0, mil: +20}, next: "beveridge", news: "MUJERES ARRASTRADAS AL FRENTE INDUSTRIAL", sub: "Millones son obligadas a operar tornos y ensamblar misiles por decreto." }
         ]
     },
 
     beveridge: {
         date: "NOVIEMBRE 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/William-Henry-Beveridge-1st-Baron-Beveridge.jpg", altHistory: false,
-        title: "EL INFORME BEVERIDGE",
-        text: "La guerra ha igualado a las clases sociales. Para evitar rebeliones, William Beveridge propone crear el <b>Estado de Bienestar</b> (Salud y educación pública universal) en la posguerra.<br><br>Es financieramente irresponsable asumir estos gastos estando endeudados con EE.UU., pero es la única forma de recompensar a la clase obrera.",
+        title: "EL PRECIO DE LA PAZ SOCIAL",
+        text: "La metralla igualó a ricos y pobres en los refugios. La gente está exhausta, desnutrida y furiosa. El economista William Beveridge tira sobre tu escritorio una bomba de tiempo: El Estado de Bienestar. Exige salud universal y educación gratuita para la posguerra.<br><br>Estás quebrado y endeudado hasta la médula con América. Asumir este gasto es un suicidio fiscal a largo plazo. Pero si defiendes la caja y vetas la propuesta, la clase obrera quemará el país en cuanto caiga el último nazi.",
         choices: [
-            { title: "FIRMAR EL INFORME BEVERIDGE", hint: "Sella la paz social a largo plazo. Consolida el déficit estructural.", impact: {moral: +45, inf: +10, debt: +25, mil: 0}, next: "d_day", news: "SALUD PÚBLICA PARA TODOS", sub: "El gobierno promete un Estado de Bienestar integral para la posguerra." },
-            { title: "VETAR EL INFORME (Ortodoxia Fiscal)", hint: "Protege las cuentas del Estado. Destruye la moral popular.", impact: {moral: -35, inf: -10, debt: -15, mil: 0}, next: "d_day", news: "NO HAY DINERO PARA PROMESAS", sub: "El Ministro de Hacienda rechaza financiar un sistema de salud público." }
+            { title: "HIPOTECAR EL FUTURO (Firmar el Informe)", hint: "Compra la paz social hoy, condena el déficit estructural para siempre.", impact: {moral: +45, inf: +10, debt: +25, mil: 0}, next: "d_day", news: "EL CONTRATO DE SANGRE Y SALUD", sub: "El gobierno promete un Estado de Bienestar para compensar la masacre." },
+            { title: "DEFENDER LA CAJA FUERTE (Ortodoxia Fiscal)", hint: "Protege las cuentas públicas. Desata un odio social irreversible.", impact: {moral: -35, inf: -10, debt: -15, mil: 0}, next: "d_day", news: "NO HAY DINERO PARA PROMESAS VACÍAS", sub: "El Ministro de Hacienda rechaza financiar hospitales y pensiones." }
         ]
     },
 
     d_day: {
         date: "JUNIO 1944", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Into_the_Jaws_of_Death_23-0455M_edit.jpg", altHistory: false,
-        title: "EL DÍA D Y EL FIN DE LA GUERRA",
-        text: "Alemania está retrocediendo. El Desembarco de Normandía (Día D) requiere un último sacrificio logístico. Poco después, Hitler cae y Europa es liberada.<br><br>Pero Stalin ha ocupado toda Europa del Este. Churchill, enojado, presenta un plan demente llamado <b>'Operación Impensable'</b>: atacar a la URSS mañana mismo con la economía hecha pedazos.",
+        title: "LA ÚLTIMA GOTA DE SANGRE",
+        text: "La invasión es mañana. El Día D. Para que un millón de hombres cruce el canal y aplaste al Eje, tienes que desviar absolutamente cada litro de combustible, cada tren de carbón y cada caloría de la economía civil hacia la maquinaria militar. El país quedará paralizado al borde de la hambruna total.<br><br>Mientras tanto, Churchill fuma furioso viendo cómo Stalin devora el Este y te susurra un plan suicida: 'Operación Impensable'. Terminar con Hitler y mandar las tropas directamente a destruir Moscú.",
         choices: [
-            { title: "ACEPTAR LA PAZ (Histórico)", hint: "Comienza la reconstrucción. Fin del juego.", impact: {moral: +20, inf: -10, debt: 0, mil: -10}, next: "final", news: "EL EJE SE RINDE", sub: "Europa en ruinas. Comienza una época de dura recuperación económica." },
-            { title: "APROBAR OPERACIÓN IMPENSABLE (Locura)", hint: "Tercera Guerra Mundial prematura. Destrucción total.", impact: {moral: -80, inf: +50, debt: +50, mil: +30}, next: "alt_impensable", news: "CHURCHILL ATACA A STALIN", sub: "Sin respiro, las tropas británicas reciben la orden de atacar Moscú." }
+            { title: "APRETAR LOS DIENTES Y ACEPTAR LA PAZ", hint: "Termina la guerra histórica. Comienza la evaluación final.", impact: {moral: +20, inf: -10, debt: 0, mil: -10}, next: "final", news: "EL EJE COLAPSA", sub: "Europa es un cementerio humeante. Comienza una era de dura austeridad." },
+            { title: "DESATAR LA TERCERA GUERRA MUNDIAL", hint: "Atacar a la Unión Soviética. Apuesta militar insana.", impact: {moral: -80, inf: +50, debt: +50, mil: +30}, next: "alt_impensable", news: "CHURCHILL ATACA A STALIN", sub: "Sin respiro para sepultar a sus muertos, los británicos marchan hacia Moscú." }
         ]
     },
 
     alt_impensable: {
         date: "AGOSTO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Yalta_Conference_1945_Churchill,_Stalin,_Roosevelt.jpg", altHistory: true,
-        title: "LA TERCERA GUERRA MUNDIAL",
-        text: "<b>FINAL LOCO:</b> La economía británica simplemente dejó de existir. No había fondos para abastecer a las tropas en Siberia. El Ejército Rojo repelió el ataque y marchó sobre Europa Occidental sin resistencia.<br><br>Gran Bretaña intentó usar las primeras armas atómicas, llevando a un holocausto global. El mundo terminó antes de la guerra fría.",
-        choices: [{ title: "REINICIAR SIMULACIÓN", impact: null, next: "intro", news: "EL MUNDO EN LLAMAS", sub: "La economía colapsa mientras la Tercera Guerra Mundial arrasa Europa." }]
+        title: "EL FUEGO NUCLEAR",
+        text: "<b>FINAL LOCO:</b> La orden fue dada. Tropas británicas y soviéticas chocaron en las ruinas ensangrentadas de Europa. Pero tu economía era un fantasma de papel. Sin combustible civil ni fondos de reserva, el Ejército Rojo aplastó tu ofensiva huérfana y marchó hasta París sin resistencia.<br><br>En un acto final de locura, cayeron las primeras bombas atómicas. Has incinerado el mundo entero antes de que naciera la Guerra Fría.",
+        choices: [{ title: "CONTEMPLAR LAS CENIZAS", impact: null, next: "intro", news: "EL MUNDO EN LLAMAS GLOBALES", sub: "La economía se evapora bajo el hongo nuclear de la Tercera Guerra Mundial." }]
     },
 
     final: {
         date: "JULIO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_waves_to_crowds_in_Whitehall_in_London_as_they_celebrate_VE_Day,_8_May_1945._H41849.jpg", altHistory: false,
-        title: "EVALUACIÓN MACROECONÓMICA FINAL",
-        text: "<div id='final-report'></div>",
-        choices: [{ title: "CERRAR EXPEDIENTE", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE", sub: "Una nueva era económica comienza bajo el paradigma Keynesiano." }]
+        title: "EL VEREDICTO DE LAS CENIZAS",
+        text: "Las armas callaron. El humo se disipa en Londres. Es hora de abrir los libros de contabilidad manchados de sangre y enfrentar el verdadero saldo de la masacre. El veredicto de tu gestión determinará si dejaste una nación soberana, una colonia endeudada, o un polvorín a punto de estallar.<br><br><div id='final-report'></div>",
+        choices: [{ title: "ARCHIVAR EL EXPEDIENTE (Reiniciar)", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE EN EL TIEMPO", sub: "Una nueva era económica comienza bajo el paradigma del Keynesianismo." }]
     }
 };
 
