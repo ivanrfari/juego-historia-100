@@ -204,30 +204,40 @@ const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '</svg>'
 );
 
-// --- CARGA ROBUSTA DE IMÁGENES ---
-// Root cause de las fallas "a veces": los hotlinks a Wikimedia pueden fallar
-// de forma transitoria (corte momentáneo de red, redirect de Special:FilePath
-// que no llega a tiempo, CDN lento en el celular, etc). Un solo intento fallido
-// dejaba la imagen rota para siempre en esa fase. Ahora se reintenta unas
-// pocas veces con backoff antes de rendirse y mostrar el cartel de repuesto.
-function loadPhotoWithRetry(imgEl, url, attempt) {
+// Identificador global para la fase actual. Se usa para evitar condiciones de carrera.
+let currentPhotoRequestId = 0;
+
+// --- CARGA ROBUSTA DE IMÁGENES CON CONTROL DE CONDICIÓN DE CARRERA ---
+function loadPhotoWithRetry(imgEl, url, expectedRequestId, attempt) {
     attempt = attempt || 0;
     const MAX_RETRIES = 3;
     const DELAY_MS = 700;
 
-    // Forzar recarga real (evita que el navegador reuse una respuesta fallida cacheada)
+    // Forzar recarga real
     const bustedUrl = url + (url.includes('?') ? '&' : '?') + '_retry=' + attempt;
 
     const tempImg = new Image();
     tempImg.referrerPolicy = 'no-referrer';
-    tempImg.onload = () => { imgEl.src = tempImg.src; };
+    
+    tempImg.onload = () => { 
+        // Si el identificador cambió, significa que el jugador avanzó de fase antes de que cargara esta foto
+        if (currentPhotoRequestId !== expectedRequestId) return; 
+        imgEl.src = tempImg.src; 
+    };
+    
     tempImg.onerror = () => {
+        if (currentPhotoRequestId !== expectedRequestId) return; // Abortar reintento si la fase cambió
+        
         if (attempt < MAX_RETRIES) {
-            setTimeout(() => loadPhotoWithRetry(imgEl, url, attempt + 1), DELAY_MS * (attempt + 1));
+            setTimeout(() => {
+                if (currentPhotoRequestId !== expectedRequestId) return; // Abortar antes de relanzar
+                loadPhotoWithRetry(imgEl, url, expectedRequestId, attempt + 1);
+            }, DELAY_MS * (attempt + 1));
         } else {
             imgEl.src = FALLBACK_IMG;
         }
     };
+    
     tempImg.src = bustedUrl;
 }
 
@@ -461,7 +471,10 @@ function renderPhase(id) {
     let boxEl = document.getElementById('ui-photo-box');
     boxEl.style.display = 'block'; 
     imgEl.style.display = 'block';
-    loadPhotoWithRetry(imgEl, p.photo);
+    
+    // Incrementar el ID de fase vigente para asegurar que las fotos de fases anteriores se cancelen
+    currentPhotoRequestId++;
+    loadPhotoWithRetry(imgEl, p.photo, currentPhotoRequestId, 0);
     
     document.getElementById('alt-tag').style.display = p.altHistory ? "inline-block" : "none";
 
