@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="referrer" content="no-referrer">
-    <!-- OPTIMIZACIÓN PWA: Evita el cartel de pantalla completa si se añade a inicio -->
+    <!-- OPTIMIZACIÓN PWA: Listo para instalarse como App nativa -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,14 +12,15 @@
     
     <title>Dossier Histórico: La Segunda Guerra Mundial</title>
     <style>
-        /* Fuentes Históricas Optimizadas */
+        /* Fuentes Históricas */
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&family=Special+Elite&display=swap');
 
-        /* Arreglo para evitar scroll lateral y ELIMINAR EL RESALTADO AZUL TÁCTIL */
+        /* AUDITORÍA: Bloqueo de Zoom por doble toque en iOS y selección de texto táctil */
         *, *::before, *::after { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
-            -webkit-touch-callout: none; /* Bloqueo extra del menú emergente táctil */
+            -webkit-touch-callout: none;
+            touch-action: manipulation; 
         }
 
         /* BLOQUEO ABSOLUTO */
@@ -41,21 +42,22 @@
             background: #111; box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
 
-        /* --- CLÍMAX: FLASH NUCLEAR --- */
+        /* --- CLÍMAX: FLASH NUCLEAR PROTEGIDO --- */
         #nuke-flash {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #fff; z-index: 9999999;
-            pointer-events: none; opacity: 0; display: none;
+            opacity: 0; display: none;
         }
         .flash-anim {
             display: block !important;
+            pointer-events: all; /* AUDITORÍA: Absorbe clics para evitar bugs durante la animación */
             animation: nukeExplosion 7s cubic-bezier(0.1, 0.8, 0.1, 1) forwards;
         }
         @keyframes nukeExplosion {
             0% { opacity: 1; background-color: #ffffff; }
             10% { opacity: 1; background-color: #ffffff; } 
             25% { opacity: 1; background-color: #fff0eb; }
-            100% { opacity: 0; background-color: #8b0000; }
+            100% { opacity: 0; background-color: #8b0000; pointer-events: none; }
         }
 
         /* --- CANVAS DE POLVO ATMOSFÉRICO --- */
@@ -133,7 +135,7 @@
         #dossier-wrapper::-webkit-scrollbar { display: none; }
 
         /* =========================================
-           PAPEL ENVEJECIDO (Optimizado sin filtros SVG)
+           PAPEL ENVEJECIDO
            ========================================= */
         .paper {
             background-color: #dfd2b5; 
@@ -167,10 +169,10 @@
         .date { font-family: 'Special Elite', cursive; font-size: 1.2em; color: #33271e; border-bottom: 2px solid #5a4b3d; padding-bottom: 5px; margin-bottom: 15px; position: relative; z-index: 2;}
         h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 2.5em; margin-top: 0; margin-bottom: 15px; color: #111; line-height: 1.1; letter-spacing: 1px; position: relative; z-index: 2;}
         
+        /* AUDITORÍA: text-shadow removido del texto dinámico para evitar Layout Thrashing en móviles */
         .body-text { 
             font-family: 'Courier Prime', monospace; font-size: 1.15em; line-height: 1.6; text-align: justify; 
-            margin-bottom: 35px; color: #2b2118; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.2); position: relative; z-index: 2;
-            cursor: pointer; 
+            margin-bottom: 35px; color: #2b2118; position: relative; z-index: 2; cursor: pointer; 
         }
         .body-text b { font-weight: 700; background: rgba(0,0,0,0.05); padding: 0 3px; }
 
@@ -249,7 +251,7 @@
         .decision-btn:hover, .decision-btn:active { background: #e8e3ca; box-shadow: 0px 0px 0px #222; transform: translate3d(5px, 5px, 0); }
         
         .btn-posture { display: block; font-family: 'Oswald', sans-serif; font-size: 1.1em; color: #7a0000; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #aaa; text-transform: uppercase; letter-spacing: 1px;}
-        .btn-text { font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 1.1em; line-height: 1.4; display: block; text-shadow: 0.3px 0.3px 1px rgba(0,0,0,0.1); }
+        .btn-text { font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 1.1em; line-height: 1.4; display: block; }
 
         /* SELLO MODAL ACELERADO */
         .global-stamp { position: absolute; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(6) rotate(-15deg); font-family: 'Special Elite', cursive; font-size: 4em; color: #8b0000; border: 8px solid #8b0000; padding: 10px 20px; text-align: center; line-height: 1; opacity: 0; pointer-events: none; z-index: 9999; text-transform: uppercase; will-change: transform, opacity;}
@@ -275,7 +277,7 @@
         .feedback-tag { font-family: 'Special Elite', cursive; margin-bottom: 15px; padding-bottom: 5px; display: inline-block; font-size: 1.1em;}
         .feedback-correct { color: #27ae60; border-bottom: 2px dashed #27ae60; }
         .feedback-incorrect { color: #c0392b; border-bottom: 2px dashed #c0392b; }
-        .verdict-text { font-size: 1.15em; line-height: 1.6; text-align: justify; margin-bottom: 25px; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.2); color: #2b2118;}
+        .verdict-text { font-size: 1.15em; line-height: 1.6; text-align: justify; margin-bottom: 25px; color: #2b2118;}
         .verdict-text b { background: rgba(139,0,0,0.1); padding: 0 5px; }
         
         .next-btn { background: #222; color: #fff; border: none; padding: 15px 25px; width: 100%; font-family: 'Special Elite', cursive; font-size: 1.2em; cursor: pointer; transition: 0.2s; flex-shrink: 0; border: 2px solid #222; box-shadow: 4px 4px 0px #8b0000; will-change: transform;}
@@ -284,7 +286,7 @@
         .alt-history-box { margin-top: 25px; border-top: 2px dashed #8b0000; padding-top: 20px; text-align: left; }
         .alt-history-title { font-family: 'Oswald', sans-serif; font-size: 1.4em; color: #8b0000; margin-bottom: 15px; text-transform: uppercase; }
         .alt-history-list { font-family: 'Courier Prime', monospace; font-size: 1em; padding-left: 20px; line-height: 1.6; color: #2b2118; }
-        .alt-history-list li { margin-bottom: 12px; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.2); }
+        .alt-history-list li { margin-bottom: 12px; }
 
         @media (max-width: 600px) {
             #top-bar { padding-top: max(35px, env(safe-area-inset-top)); padding-bottom: 15px; padding-right: 50px; }
@@ -520,7 +522,9 @@ const storyTree = {
             p.x += p.vx;
             p.y += p.vy;
             
+            // AUDITORÍA: Refuerzo de validadores para cuando el jugador gira la pantalla
             if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = canvas.height; 
             if (p.x < 0) p.x = canvas.width;
             if (p.x > canvas.width) p.x = 0;
 
@@ -544,6 +548,8 @@ let ambSources = [];
 let ambGain = null;
 let ambientIntervals = [];
 let ambientTimeoutId = null; 
+// AUDITORÍA: Declaración correcta de la variable para prevenir caídas en Strict Mode
+let choicesFadeTimeout = null; 
 
 function startGame() {
     let music = document.getElementById('bg-music');
@@ -629,6 +635,7 @@ function clearAmbient() {
             oldGain.gain.setValueAtTime(oldGain.gain.value || 0.001, now);
             oldGain.gain.linearRampToValueAtTime(0.001, now + 0.3); 
             setTimeout(() => {
+                // AUDITORÍA: Desconexión explícita del colector de basura de audio
                 oldSources.forEach(s => { try { s.stop(); s.disconnect(); } catch(e){} });
                 try { oldGain.disconnect(); } catch(e){}
             }, 400);
@@ -766,12 +773,12 @@ function playAmbient(yearId) {
 
             let tinnitus = ctx.createOscillator();
             tinnitus.type = 'sine'; tinnitus.frequency.value = 3800;
-            let tinGain = ctx.createGain(); tinGain.gain.value = 0.04; // Tinnitus más seguro y sutil
+            let tinGain = ctx.createGain(); tinGain.gain.value = 0.04; 
             tinnitus.connect(tinGain); tinGain.connect(ambGain);
             tinnitus.start();
             ambSources.push(tinnitus);
 
-            ambGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3); // Volumen general nivelado
+            ambGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3); 
             
         } else if (yearId === "t-postwar") { 
             // Silencio
@@ -813,12 +820,11 @@ function playSound(type) {
     } catch (e) {}
 }
 
-// Zoom en Fotos con bloqueo de menú emergente táctil adicional
+// Zoom en Fotos
 (function initPhotoZoom() {
     const img = document.getElementById('ui-photo');
     const container = document.getElementById('ui-photo-box');
     
-    // BLOQUEO DE MENÚ CONTEXTUAL NATIVO (Clic derecho / Mantener presionado)
     img.addEventListener('contextmenu', e => e.preventDefault());
     container.addEventListener('contextmenu', e => e.preventDefault());
     
@@ -855,7 +861,7 @@ function decryptText(element, finalString) {
     }, 45);
 }
 
-// --- EFECTO MÁQUINA DE ESCRIBIR (OPTIMIZADO PARA EVITAR BUGS DE RENDER) ---
+// --- EFECTO MÁQUINA DE ESCRIBIR ---
 function typeWriterHTML(element, htmlString, speed, callback) {
     element.innerHTML = '';
     let i = 0; let isTyping = true; let currentHTML = '';
@@ -915,6 +921,9 @@ function renderPhase(id) {
 
     let p = storyTree[id];
     
+    // AUDITORÍA: Limpieza previa del timeout de los botones para evitar carreras de eventos si el jugador salta el texto muy rápido
+    if (choicesFadeTimeout) { clearTimeout(choicesFadeTimeout); choicesFadeTimeout = null; }
+
     if(id === "evaluation") {
         playAmbient("t-postwar");
     } else {
@@ -965,7 +974,7 @@ function renderPhase(id) {
             alternateHistoryHTML = `<div class="alt-history-box"><div class="alt-history-title">Líneas Temporales Alternativas Creadas:</div><ul class="alt-history-list">${playerDeviations.map(dev => `<li>${dev}</li>`).join('')}</ul></div>`;
         }
 
-        let scorePanel = `<div style="border: 2px dashed ${colorStr}; padding: 20px; margin-top: 30px; text-align: center; background: rgba(0,0,0,0.05);"><div style="font-family: 'Special Elite', cursive; font-size: 1.2em; margin-bottom: 10px; color: #444;">EVALUACIÓN DE GESTIÓN: ${playerScore} / 5 ACIERTOS</div><div style="font-family: 'Oswald', sans-serif; font-size: 2.2em; color: ${colorStr}; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase;">${rankStr}</div><div style="font-family: 'Courier Prime', monospace; font-size: 1.1em; color: #222; text-align: justify; text-shadow: 0.3px 0.3px 1px rgba(0,0,0,0.15);">${descStr}</div>${alternateHistoryHTML}</div>`;
+        let scorePanel = `<div style="border: 2px dashed ${colorStr}; padding: 20px; margin-top: 30px; text-align: center; background: rgba(0,0,0,0.05);"><div style="font-family: 'Special Elite', cursive; font-size: 1.2em; margin-bottom: 10px; color: #444;">EVALUACIÓN DE GESTIÓN: ${playerScore} / 5 ACIERTOS</div><div style="font-family: 'Oswald', sans-serif; font-size: 2.2em; color: ${colorStr}; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase;">${rankStr}</div><div style="font-family: 'Courier Prime', monospace; font-size: 1.1em; color: #222; text-align: justify;">${descStr}</div>${alternateHistoryHTML}</div>`;
         
         let btn = document.createElement('button');
         btn.className = 'decision-btn';
@@ -975,9 +984,8 @@ function renderPhase(id) {
 
         typeWriterHTML(textEl, p.text + scorePanel, 16, () => {
             choicesBox.style.display = 'flex';
-            // FORZAR REPAINT para evitar botones fantasma
             void choicesBox.offsetWidth;
-            setTimeout(() => { choicesBox.style.opacity = '1'; }, 10);
+            choicesFadeTimeout = setTimeout(() => { choicesBox.style.opacity = '1'; }, 10);
         });
 
     } else {
@@ -1006,7 +1014,7 @@ function renderPhase(id) {
                     if(ctx && noiseBuffer) {
                         let n = ctx.createBufferSource(); n.buffer = noiseBuffer; n.loop = true;
                         let f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 150;
-                        let g = ctx.createGain(); g.gain.setValueAtTime(2.0, ctx.currentTime); // CUIDADO DE LOS PARLANTES BAJADO A 2.0
+                        let g = ctx.createGain(); g.gain.setValueAtTime(2.0, ctx.currentTime);
                         
                         g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 6.5);
                         n.connect(f); f.connect(g); g.connect(ctx.destination);
@@ -1054,10 +1062,9 @@ function renderPhase(id) {
             dilemmaTitle.style.display = 'block';
             choicesBox.style.display = 'flex';
             
-            // FORZAR REPAINT PARA CELULARES
             void choicesBox.offsetWidth;
             
-            setTimeout(() => {
+            choicesFadeTimeout = setTimeout(() => {
                 dilemmaTitle.style.opacity = '1';
                 choicesBox.style.opacity = '1';
                 playSound('paper'); 
@@ -1068,7 +1075,7 @@ function renderPhase(id) {
 
 function nextPhase() {
     let btn = document.getElementById('next-phase-btn');
-    if (btn.style.pointerEvents === 'none') return; // evita el doble toque
+    if (btn.style.pointerEvents === 'none') return; // AUDITORÍA: Prevención doble clic
     btn.style.pointerEvents = 'none';
 
     playSound('paper');
