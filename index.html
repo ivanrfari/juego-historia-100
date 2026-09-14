@@ -3,514 +3,1079 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Permite cargar imágenes externas bloqueadas por seguridad -->
     <meta name="referrer" content="no-referrer">
-    <title>Gabinete Macroeconómico - Caminos Alternativos</title>
+    <!-- OPTIMIZACIÓN PWA: Evita el cartel de pantalla completa si se añade a inicio -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e1b18">
+    
+    <title>Dossier Histórico: La Segunda Guerra Mundial</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap');
+        /* Fuentes Históricas Optimizadas */
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&family=Special+Elite&display=swap');
 
+        /* Arreglo para evitar scroll lateral y ELIMINAR EL RESALTADO AZUL TÁCTIL */
+        *, *::before, *::after { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none; /* Bloqueo extra del menú emergente táctil */
+        }
+
+        /* BLOQUEO ABSOLUTO */
         body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
+            margin: 0; padding: 0; 
+            width: 100vw; height: 100vh; 
             background-color: #1e1b18;
             background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 2px, transparent 2px, transparent 4px);
-            font-family: 'Playfair Display', serif;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden; user-select: none;
+            font-family: 'Libre Baskerville', serif;
+            overflow: hidden; 
+            user-select: none;
         }
 
         #game-container {
             width: 100%; max-width: 900px; 
-            height: 100dvh; /* dvh adapta la altura dinámicamente al celular */
-            max-height: 900px;
+            height: 100vh; 
+            margin: 0 auto; 
             display: flex; flex-direction: column; position: relative;
             background: #111; box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
 
-        /* --- BARRA SUPERIOR DE ESTADÍSTICAS --- */
-        #top-bar {
-            background: #151515; border-bottom: 2px solid #8b0000;
-            display: flex; justify-content: space-around; 
-            padding: 12px;
-            /* La siguiente línea empuja la barra hacia abajo para esquivar la cámara/notch */
-            padding-top: max(30px, env(safe-area-inset-top)); 
-            z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+        /* --- CLÍMAX: FLASH NUCLEAR --- */
+        #nuke-flash {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #fff; z-index: 9999999;
+            pointer-events: none; opacity: 0; display: none;
         }
-        .stat-box { text-align: center; width: 22%; }
-        .stat-label { font-family: 'Special Elite', cursive; color: #ccc; font-size: 0.85em; margin-bottom: 5px;}
-        .stat-bar { height: 12px; background: #222; border: 1px solid #444; border-radius: 2px; overflow: hidden; }
-        .stat-fill { height: 100%; width: 50%; transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.5s; }
+        .flash-anim {
+            display: block !important;
+            animation: nukeExplosion 7s cubic-bezier(0.1, 0.8, 0.1, 1) forwards;
+        }
+        @keyframes nukeExplosion {
+            0% { opacity: 1; background-color: #ffffff; }
+            10% { opacity: 1; background-color: #ffffff; } 
+            25% { opacity: 1; background-color: #fff0eb; }
+            100% { opacity: 0; background-color: #8b0000; }
+        }
+
+        /* --- CANVAS DE POLVO ATMOSFÉRICO --- */
+        #dust-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50; opacity: 0.95;
+        }
+
+        /* --- PANTALLA DE INICIO --- */
+        #start-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0a0a; z-index: 999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: #eaddc5; transition: opacity 0.5s ease-out; will-change: opacity;
+        }
+        .start-title { font-family: 'Oswald', sans-serif; font-size: 3em; text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
         
-        #fill-moral { background: #2ecc71; }
-        #fill-inf { background: #e74c3c; }
-        #fill-debt { background: #f39c12; }
-        #fill-mil { background: #3498db; }
+        .start-btn-text {
+            font-family: 'Special Elite', cursive; font-size: 1.5em; color: #8b0000;
+            border: 4px solid #8b0000; padding: 15px 30px; text-align: center;
+            animation: pulse 1.5s infinite; cursor: pointer; transition: background 0.3s, color 0.3s;
+            will-change: transform, opacity;
+        }
+        .start-btn-text:hover, .start-btn-text:active { background: #8b0000; color: #0a0a0a; animation: none; }
+        
+        .start-instructions {
+            margin-top: 35px; font-size: 0.9em; opacity: 0.8; font-family: 'Courier Prime', monospace;
+            text-align: center; line-height: 1.8; max-width: 80%;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
+
+        /* --- EFECTO TEMBLOR ACELERADO --- */
+        @keyframes shake {
+            0% { transform: translate3d(1px, 1px, 0) rotate(0deg); }
+            10% { transform: translate3d(-2px, -3px, 0) rotate(-1deg); }
+            20% { transform: translate3d(-4px, 0px, 0) rotate(1deg); }
+            30% { transform: translate3d(4px, 3px, 0) rotate(0deg); }
+            40% { transform: translate3d(2px, -2px, 0) rotate(1deg); }
+            50% { transform: translate3d(-2px, 3px, 0) rotate(-1deg); }
+            60% { transform: translate3d(-4px, 2px, 0) rotate(0deg); }
+            70% { transform: translate3d(4px, 2px, 0) rotate(-1deg); }
+            80% { transform: translate3d(-2px, -2px, 0) rotate(1deg); }
+            90% { transform: translate3d(2px, 3px, 0) rotate(0deg); }
+            100% { transform: translate3d(0px, 0px, 0) rotate(0deg); }
+        }
+        .shake-effect { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; will-change: transform; }
+
+        /* --- BOTÓN DE PANTALLA COMPLETA --- */
+        #fullscreen-btn {
+            position: absolute; top: max(15px, env(safe-area-inset-top)); right: 15px;
+            background: transparent; color: #8b0000; border: 2px solid #8b0000; border-radius: 4px;
+            width: 35px; height: 35px; font-size: 18px; cursor: pointer; z-index: 20;
+            display: flex; justify-content: center; align-items: center; transition: 0.3s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+        #fullscreen-btn:hover { background: #8b0000; color: #fff; }
+
+        /* --- LÍNEA DE TIEMPO SUPERIOR --- */
+        #top-bar {
+            background: #151515; border-bottom: 2px solid #8b0000; display: flex; justify-content: space-around; align-items: center;
+            padding: 15px; padding-top: max(20px, env(safe-area-inset-top)); z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            padding-right: 60px; flex-shrink: 0; 
+        }
+        .timeline-step { font-family: 'Special Elite', cursive; color: #555; font-size: 1.1em; transition: color 0.3s, transform 0.3s; }
+        .timeline-step.active { color: #eaddc5; font-weight: bold; transform: scale(1.2); text-shadow: 0 0 5px rgba(234, 221, 197, 0.5);}
 
         /* --- ÁREA DEL DOSSIER --- */
         #dossier-wrapper {
-            flex: 1; padding: 20px; display: flex; justify-content: center; align-items: flex-start;
-            overflow-y: auto; perspective: 1000px;
+            flex: 1 1 auto; min-height: 0; padding: 30px 20px; display: flex; justify-content: center; align-items: flex-start;
+            overflow-y: auto; overflow-x: hidden; perspective: 1000px; -webkit-overflow-scrolling: touch; 
+            scrollbar-width: none; -ms-overflow-style: none; 
         }
+        #dossier-wrapper::-webkit-scrollbar { display: none; }
 
+        /* =========================================
+           PAPEL ENVEJECIDO (Optimizado sin filtros SVG)
+           ========================================= */
         .paper {
-            background-color: #eaddc5;
-            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.06"/></svg>');
-            width: 90%; max-width: 650px; padding: 35px; box-shadow: 5px 5px 20px rgba(0,0,0,0.6);
+            background-color: #dfd2b5; 
+            background-image: radial-gradient(ellipse at center, rgba(0,0,0,0) 65%, rgba(60, 25, 10, 0.35) 100%);
+            width: 90%; max-width: 700px; padding: 40px 35px; border-radius: 2px 8px 3px 6px; border: 1px solid rgba(139, 69, 19, 0.3);
+            box-shadow: inset 0 0 25px rgba(60, 25, 10, 0.25), 5px 5px 25px rgba(0,0,0,0.8);
             color: #222; position: relative; transform-origin: top center;
-            animation: slideIn 0.4s ease-out; margin-bottom: 30px; border-radius: 2px;
+            animation: slideIn 0.4s ease-out; margin-bottom: 30px; 
+            will-change: transform, opacity;
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(-30px) rotateX(5deg); opacity: 0; }
-            to { transform: translateY(0) rotateX(0deg); opacity: 1; }
+        .paper::before {
+            content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 140px; height: 35px;
+            background-color: rgba(200, 190, 160, 0.6); box-shadow: 1px 1px 3px rgba(0,0,0,0.4), inset 0 0 5px rgba(0,0,0,0.2);
+            z-index: 10; pointer-events: none;
         }
+
+        .paper::after {
+            content: 'ALTO SECRETO'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg);
+            font-family: 'Special Elite', cursive; font-size: 8em; color: rgba(139, 0, 0, 0.05); border: 10px solid rgba(139, 0, 0, 0.05);
+            padding: 20px; white-space: nowrap; pointer-events: none; z-index: 1; 
+        }
+
+        @keyframes slideIn { from { transform: translate3d(0,-30px,0) rotateX(5deg); opacity: 0; } to { transform: translate3d(0,0,0) rotateX(0deg); opacity: 1; } }
 
         .classification {
-            position: absolute; top: 15px; right: 15px;
-            font-family: 'Special Elite', cursive; color: #8b0000; border: 3px solid #8b0000;
-            padding: 5px 10px; transform: rotate(-5deg); font-size: 1.1em; opacity: 0.7; z-index: 5;
-        }
-        
-        /* Indicador de Historia Alternativa */
-        .alt-history-tag {
-            background: #8b0000; color: #fff; font-family: 'Special Elite', cursive;
-            padding: 5px 10px; display: inline-block; margin-bottom: 10px; font-size: 0.9em;
-            box-shadow: 2px 2px 0px #222;
+            display: block; width: fit-content; margin: 2px 0 12px auto; font-family: 'Special Elite', cursive; color: #7a0000; border: 3px solid #7a0000;
+            padding: 5px 10px; transform: rotate(-3deg); font-size: 1.1em; opacity: 0.6; position: relative; z-index: 5;
         }
 
-        .date { font-family: 'Special Elite', cursive; font-size: 1.2em; color: #444; border-bottom: 2px solid #555; padding-bottom: 5px; margin-bottom: 15px;}
-        h1 { font-size: 2.2em; margin-top: 0; margin-bottom: 15px; color: #111; line-height: 1.1;}
-        .body-text { font-size: 1.25em; line-height: 1.6; text-align: justify; margin-bottom: 25px;}
+        .date { font-family: 'Special Elite', cursive; font-size: 1.2em; color: #33271e; border-bottom: 2px solid #5a4b3d; padding-bottom: 5px; margin-bottom: 15px; position: relative; z-index: 2;}
+        h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 2.5em; margin-top: 0; margin-bottom: 15px; color: #111; line-height: 1.1; letter-spacing: 1px; position: relative; z-index: 2;}
         
-        /* FOTOGRAFÍAS HISTÓRICAS */
+        .body-text { 
+            font-family: 'Courier Prime', monospace; font-size: 1.15em; line-height: 1.6; text-align: justify; 
+            margin-bottom: 35px; color: #2b2118; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.2); position: relative; z-index: 2;
+            cursor: pointer; 
+        }
+        .body-text b { font-weight: 700; background: rgba(0,0,0,0.05); padding: 0 3px; }
+
+        /* --- FOTOGRAFÍAS ÉPICAS --- */
         .historical-photo-container {
-            width: 100%; height: 280px; overflow: hidden;
-            margin-bottom: 25px; border: 8px solid #fdfdfd; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            background: #000; position: relative;
-        }
-        .historical-photo {
-            width: 100%; height: 100%; object-fit: cover; object-position: center 20%;
-            filter: grayscale(100%) sepia(30%) contrast(1.2) brightness(0.9); 
+            width: 100%; height: 470px; overflow: hidden; margin-bottom: 30px; background-color: #e8e4d8; 
+            padding: 10px 10px 35px 10px; box-shadow: 2px 6px 15px rgba(0,0,0,0.4), inset 0 0 8px rgba(101,67,33,0.1); 
+            border: 1px solid #b8b09d; border-radius: 2px; position: relative; cursor: pointer; z-index: 2;
+            transform: rotate(-1.5deg) translateZ(0); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            will-change: transform; 
         }
 
-        /* --- BOTONES DE DECISIÓN --- */
-        .choices-container { display: flex; flex-direction: column; gap: 12px; border-top: 1px dashed #777; padding-top: 20px;}
+        .historical-photo-container:hover, .historical-photo-container:active {
+            transform: scale(1.02) rotate(0deg) translateZ(0); box-shadow: 5px 12px 25px rgba(0,0,0,0.6), inset 0 0 8px rgba(101,67,33,0.1); 
+        }
+
+        .historical-photo-container::after {
+            content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 35px; box-shadow: inset 0 0 45px rgba(0,0,0,0.85); 
+            background: linear-gradient(135deg, #151515 22px, transparent 23px) top left, linear-gradient(-135deg, #151515 22px, transparent 23px) top right, linear-gradient(45deg, #151515 22px, transparent 23px) bottom left, linear-gradient(-45deg, #151515 22px, transparent 23px) bottom right;
+            background-size: 51% 51%; background-repeat: no-repeat; pointer-events: none; z-index: 3; 
+        }
+
+        .historical-photo { 
+            width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; 
+            transform-origin: center center; touch-action: pan-y; -webkit-user-drag: none; user-select: none;
+            will-change: filter, clip-path; 
+        }
+        
+        @keyframes photoReveal { 
+            0% { filter: grayscale(100%) sepia(60%) contrast(1.5) brightness(0.2); clip-path: inset(0 0 100% 0); } 
+            8% { clip-path: inset(0 0 100% 0); }
+            65% { filter: grayscale(100%) sepia(45%) contrast(1.3) brightness(0.6); }
+            100% { filter: grayscale(100%) sepia(35%) contrast(1.15) brightness(0.85); clip-path: inset(0 0 0% 0); } 
+        }
+
+        .fax-scan-line {
+            position: absolute; left: 0; right: 0; top: 0; height: 6px; background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0) 100%);
+            box-shadow: 0 0 12px 2px rgba(255,255,255,0.4); z-index: 4; pointer-events: none; opacity: 0;
+            will-change: transform, opacity; 
+        }
+        
+        @keyframes faxScanMove { 
+            0% { transform: translate3d(0, 0, 0); opacity: 0; } 
+            5% { opacity: 1; } 
+            92% { opacity: 1; } 
+            100% { transform: translate3d(0, 420px, 0); opacity: 0; } 
+        }
+
+        .photo-hint {
+            position: absolute; bottom: 7px; right: 15px; color: #8b0000; font-family: 'Special Elite', cursive; font-size: 0.9em; transition: opacity 0.3s; z-index: 4; pointer-events: none; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;
+        }
+
+        .photo-caption-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(17, 17, 17, 0.98); color: #eaddc5; font-family: 'Courier Prime', monospace; font-size: 0.95em; line-height: 1.5; padding: 20px; box-sizing: border-box; border-top: 3px solid #8b0000;
+            transform: translate3d(0, 100%, 0); transition: transform 0.3s ease-in-out; z-index: 5; text-align: justify;
+            will-change: transform;
+        }
+        .caption-title { color: #8b0000; font-family: 'Special Elite', cursive; font-size: 1.1em; margin-bottom: 5px; }
+        .historical-photo-container:hover .photo-caption-overlay, .historical-photo-container:active .photo-caption-overlay { transform: translate3d(0, 0, 0); }
+        .historical-photo-container:hover .photo-hint, .historical-photo-container:active .photo-hint { opacity: 0; }
+        .historical-photo-container.zooming .photo-caption-overlay { transform: translate3d(0, 100%, 0) !important; }
+
+        /* --- DEBATE HISTÓRICO Y OPCIONES --- */
+        .dilemma-title { 
+            font-family: 'Special Elite', cursive; text-transform: uppercase; color: #7a0000; font-size: 1.3em; text-align: center; margin-bottom: 20px; 
+            border-top: 3px double #7a0000; border-bottom: 3px double #7a0000; padding: 10px 0; background: rgba(139,0,0,0.04); letter-spacing: 1px; position: relative; z-index: 2;
+            transition: opacity 0.6s ease;
+        }
+        
+        .choices-container { display: flex; gap: 20px; position: relative; z-index: 2; transition: opacity 0.6s ease; }
         
         .decision-btn {
-            background: #fdfcf9; border: 1px solid #777; padding: 15px 20px;
-            text-align: left; font-family: 'Playfair Display', serif; font-size: 1.2em;
-            cursor: pointer; position: relative; overflow: hidden;
-            transition: all 0.2s; box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
-            -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column;
+            flex: 1; background: #fdfae9; border: 2px solid #222; border-left: 8px solid #7a0000; padding: 20px; text-align: left; cursor: pointer; position: relative; overflow: hidden; color: #111;
+            box-shadow: 5px 5px 0px #222; transform: translate3d(0px, 0px, 0); transition: all 0.15s ease-out;
         }
-        .decision-btn:hover, .decision-btn:active { background: #111; color: #fff; border-color: #111; box-shadow: 1px 1px 0px rgba(0,0,0,0.5); transform: translate(2px, 2px);}
-        .btn-title { font-weight: bold; margin-bottom: 4px;}
-        .btn-hint { font-size: 0.85em; font-family: 'Special Elite', cursive; color: #8b0000;}
-        .decision-btn:hover .btn-hint { color: #e74c3c; }
+        .decision-btn:hover, .decision-btn:active { background: #e8e3ca; box-shadow: 0px 0px 0px #222; transform: translate3d(5px, 5px, 0); }
+        
+        .btn-posture { display: block; font-family: 'Oswald', sans-serif; font-size: 1.1em; color: #7a0000; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #aaa; text-transform: uppercase; letter-spacing: 1px;}
+        .btn-text { font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 1.1em; line-height: 1.4; display: block; text-shadow: 0.3px 0.3px 1px rgba(0,0,0,0.1); }
 
-        /* EFECTO DE SELLO */
-        .stamp-effect {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2) rotate(-10deg);
-            font-family: 'Special Elite', cursive; font-size: 3.5em; color: #8b0000; border: 5px solid #8b0000;
-            padding: 10px; opacity: 0; pointer-events: none; z-index: 10; font-weight: bold;
-        }
-        .stamp-animate { animation: stampDown 0.5s forwards; }
-        @keyframes stampDown {
-            0% { transform: translate(-50%, -50%) scale(2) rotate(-10deg); opacity: 0; }
-            40% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 1; }
-            80% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 0; }
+        /* SELLO MODAL ACELERADO */
+        .global-stamp { position: absolute; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0) scale(6) rotate(-15deg); font-family: 'Special Elite', cursive; font-size: 4em; color: #8b0000; border: 8px solid #8b0000; padding: 10px 20px; text-align: center; line-height: 1; opacity: 0; pointer-events: none; z-index: 9999; text-transform: uppercase; will-change: transform, opacity;}
+        .global-stamp-animate { animation: stampSlam 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes stampSlam { 
+            0% { transform: translate3d(-50%, -50%, 0) scale(6) rotate(-15deg); opacity: 0; } 
+            15% { transform: translate3d(-50%, -50%, 0) scale(1) rotate(-15deg); opacity: 0.95; } 
+            85% { transform: translate3d(-50%, -50%, 0) scale(1) rotate(-15deg); opacity: 0.95; } 
+            100% { transform: translate3d(-50%, -50%, 0) scale(1.2) rotate(-15deg); opacity: 0; } 
         }
 
-        /* --- MODAL DE PERIÓDICO --- */
-        #newspaper-modal {
-            position: fixed; top:0; left:0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 100;
+        .modal-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 100;}
+        .verdict-box {
+            background-color: #dfd2b5; 
+            background-image: radial-gradient(ellipse at center, rgba(0,0,0,0) 65%, rgba(60, 25, 10, 0.35) 100%);
+            width: 90%; max-width: 600px; padding: 30px; border: 6px solid #8b0000; box-shadow: 0 0 40px #000; font-family: 'Courier Prime', monospace; color: #111; position: relative; max-height: 85vh; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; animation: spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            will-change: transform, opacity;
         }
-        .newspaper {
-            background: #e1d5bc; width: 95%; max-width: 600px; padding: 30px 20px;
-            text-align: center; border: 8px solid #222; box-shadow: 0 0 30px #000;
-            font-family: 'Playfair Display', serif; color: #111;
-            animation: newspaperSpin 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes newspaperSpin {
-            0% { transform: scale(0.1) rotate(-1080deg); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        .news-header { font-size: 2.8em; border-bottom: 3px solid #222; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; line-height: 1;}
-        .news-sub { font-size: 1.3em; font-style: italic; margin-bottom: 25px; }
-        .news-btn { background: #8b0000; color: #fff; border: 2px solid #550000; padding: 12px 25px; font-family: 'Special Elite', cursive; font-size: 1.2em; cursor: pointer; transition: 0.2s;}
-        .news-btn:active { transform: scale(0.95); }
+        .verdict-box::-webkit-scrollbar { display: none; }
+        @keyframes spinIn { 0% { transform: translate3d(0,0,0) scale(0.1) rotate(-1080deg); opacity: 0; } 100% { transform: translate3d(0,0,0) scale(1) rotate(0deg); opacity: 1; } }
 
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #666; border-radius: 4px; }
+        .verdict-header { font-family: 'Oswald', sans-serif; font-size: 2.2em; letter-spacing: 1px; color: #8b0000; border-bottom: 2px solid #8b0000; margin-bottom: 15px; padding-bottom: 5px; flex-shrink: 0;}
+        .feedback-tag { font-family: 'Special Elite', cursive; margin-bottom: 15px; padding-bottom: 5px; display: inline-block; font-size: 1.1em;}
+        .feedback-correct { color: #27ae60; border-bottom: 2px dashed #27ae60; }
+        .feedback-incorrect { color: #c0392b; border-bottom: 2px dashed #c0392b; }
+        .verdict-text { font-size: 1.15em; line-height: 1.6; text-align: justify; margin-bottom: 25px; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.2); color: #2b2118;}
+        .verdict-text b { background: rgba(139,0,0,0.1); padding: 0 5px; }
+        
+        .next-btn { background: #222; color: #fff; border: none; padding: 15px 25px; width: 100%; font-family: 'Special Elite', cursive; font-size: 1.2em; cursor: pointer; transition: 0.2s; flex-shrink: 0; border: 2px solid #222; box-shadow: 4px 4px 0px #8b0000; will-change: transform;}
+        .next-btn:hover { background: #8b0000; border-color: #8b0000; box-shadow: 2px 2px 0px #222; transform: translate3d(2px, 2px, 0);}
+
+        .alt-history-box { margin-top: 25px; border-top: 2px dashed #8b0000; padding-top: 20px; text-align: left; }
+        .alt-history-title { font-family: 'Oswald', sans-serif; font-size: 1.4em; color: #8b0000; margin-bottom: 15px; text-transform: uppercase; }
+        .alt-history-list { font-family: 'Courier Prime', monospace; font-size: 1em; padding-left: 20px; line-height: 1.6; color: #2b2118; }
+        .alt-history-list li { margin-bottom: 12px; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.2); }
 
         @media (max-width: 600px) {
-            .paper { width: 100%; padding: 25px 20px; margin-bottom: 0;}
-            h1 { font-size: 1.8em; }
-            .body-text { font-size: 1.15em; }
-            .decision-btn { font-size: 1.1em; padding: 12px;}
-            .stat-label { font-size: 0.65em; }
-            .news-header { font-size: 2em; }
-            .historical-photo-container { height: 200px; border-width: 4px;}
+            #top-bar { padding-top: max(35px, env(safe-area-inset-top)); padding-bottom: 15px; padding-right: 50px; }
+            #fullscreen-btn { top: max(25px, env(safe-area-inset-top)); width: 35px; height: 35px; font-size: 16px; }
+            #dossier-wrapper { padding: 10px 5px; }
+            .paper { width: 98%; padding: 30px 15px; border-radius: 4px; }
+            
+            h1 { font-size: 2.1em; } 
+            .body-text { font-size: 1.05em; }
+            .choices-container { flex-direction: column; gap: 15px; } 
+            .decision-btn { padding: 15px; }
+            .btn-text { font-size: 1.05em; }
+
+            .historical-photo-container { height: 300px; padding: 8px 8px 30px 8px; margin-bottom: 20px; } 
+            .historical-photo-container::after { top: 8px; left: 8px; right: 8px; bottom: 30px; }
+            .photo-hint { font-size: 0.75em; bottom: 6px; right: 10px;} 
+            .photo-caption-overlay { font-size: 1em; padding: 10px; }
+            
+            @keyframes faxScanMove { 
+                0% { transform: translate3d(0, 0, 0); opacity: 0; } 
+                5% { opacity: 1; } 
+                92% { opacity: 1; } 
+                100% { transform: translate3d(0, 250px, 0); opacity: 0; } 
+            }
+
+            .global-stamp { font-size: 2.5em; border-width: 4px; }
+            .start-title { font-size: 2em; } .start-btn-text { font-size: 1.2em; }
+            .start-instructions { font-size: 0.85em; }
+            .verdict-box { padding: 20px; max-height: 90vh; }
+            .verdict-header { font-size: 1.8em; } .verdict-text { font-size: 1.05em; }
+            .feedback-tag { font-size: 0.92em; }
         }
     </style>
 </head>
 <body>
 
+    <audio id="bg-music" loop>
+        <source src="https://commons.wikimedia.org/wiki/Special:FilePath/JOHN_MICHEL_CELLO-BEETHOVEN_SYMPHONY_7_Allegretto.ogg" type="audio/ogg">
+    </audio>
+
     <div id="game-container">
         
+        <!-- CANVAS DE POLVO ATMOSFÉRICO -->
+        <canvas id="dust-canvas"></canvas>
+
+        <!-- FLASH NUCLEAR DEL CLÍMAX -->
+        <div id="nuke-flash"></div>
+
+        <div id="start-screen">
+            <div class="start-title">LA SEGUNDA<br>GUERRA MUNDIAL</div>
+            <div class="start-btn-text" onclick="startGame()">DESCLASIFICAR EXPEDIENTE</div>
+            <div class="start-instructions">
+                [ Toca el sello para autorizar la desclasificación y encender el audio ]<br><br>
+                <span style="font-size: 1.1em; color: #f39c12; opacity: 0.9;">🎧 Se recomienda el uso de auriculares para una inmersión táctica completa.</span>
+            </div>
+        </div>
+
+        <button id="fullscreen-btn" onclick="toggleFullScreen()" title="Alternar Pantalla Completa">⛶</button>
+
         <div id="top-bar">
-            <div class="stat-box"><div class="stat-label">MORAL CIVIL</div><div class="stat-bar"><div class="stat-fill" id="fill-moral"></div></div></div>
-            <div class="stat-box"><div class="stat-label">INFLACIÓN</div><div class="stat-bar"><div class="stat-fill" id="fill-inf"></div></div></div>
-            <div class="stat-box"><div class="stat-label">DEUDA/DÉFICIT</div><div class="stat-bar"><div class="stat-fill" id="fill-debt"></div></div></div>
-            <div class="stat-box"><div class="stat-label">PODER MILITAR</div><div class="stat-bar"><div class="stat-fill" id="fill-mil"></div></div></div>
+            <div class="timeline-step" id="t-1939">1939</div>
+            <div class="timeline-step" id="t-1940">1940</div>
+            <div class="timeline-step" id="t-1941">1941</div>
+            <div class="timeline-step" id="t-1944">1944</div>
+            <div class="timeline-step" id="t-1945">1945</div>
         </div>
 
         <div id="dossier-wrapper">
             <div class="paper" id="paper-doc">
-                <div class="classification">TOP SECRET</div>
-                <div id="alt-tag" style="display:none;" class="alt-history-tag">⚠️ HISTORIA ALTERNATIVA</div>
                 <div class="date" id="ui-date"></div>
-                <h1 id="ui-title"></h1>
+                <div class="classification">EXPEDIENTE HISTÓRICO</div>
+                <h1 id="ui-title"></h1> 
                 
-                <div class="historical-photo-container" id="ui-photo-box">
-                    <img id="ui-photo" class="historical-photo" src="" alt="Documento histórico" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src=FALLBACK_IMG;">
+                <!-- BLOQUEO DEL MENÚ EMERGENTE AL MANTENER PRESIONADO -->
+                <div class="historical-photo-container" id="ui-photo-box" ontouchstart="" oncontextmenu="return false;">
+                    <img id="ui-photo" class="historical-photo" src="" alt="Documento histórico" referrerpolicy="no-referrer" draggable="false" oncontextmenu="return false;">
+                    <div class="fax-scan-line" id="ui-fax-scan"></div>
+                    <div class="photo-hint">[ INSPECCIONAR FOTO ]</div>
+                    <div class="photo-caption-overlay">
+                        <div class="caption-title">REVERSO FOTOGRÁFICO:</div>
+                        <div id="ui-photo-caption"></div>
+                    </div>
                 </div>
 
                 <div class="body-text" id="ui-text"></div>
+                
+                <div class="dilemma-title" id="ui-dilemma-title">DILEMA HISTÓRICO</div>
                 <div class="choices-container" id="choices-box"></div>
             </div>
         </div>
-
+        
+        <div class="global-stamp" id="global-stamp">ACCIÓN<br>REGISTRADA</div>
     </div>
 
-    <!-- MODAL PERIÓDICO -->
-    <div id="newspaper-modal">
-        <div class="newspaper">
-            <div style="font-family: 'Special Elite', cursive; font-size: 1em; border-bottom: 1px solid #111; margin-bottom: 10px; padding-bottom: 5px;">THE LONDON TIMES</div>
-            <div class="news-header" id="news-headline">TITULAR</div>
-            <div class="news-sub" id="news-subhead">Subtítulo</div>
-            <button class="news-btn" onclick="nextPhase()">AVANZAR EN EL TIEMPO ➔</button>
+    <!-- MODAL DE VEREDICTO -->
+    <div class="modal-overlay" id="verdict-modal">
+        <div class="verdict-box" id="verdict-box-content">
+            <div class="verdict-header">LO QUE OCURRIÓ EN LA REALIDAD</div>
+            <div class="verdict-text" id="verdict-text"></div>
+            <button class="next-btn" id="next-phase-btn" onclick="nextPhase()">AVANZAR EN EL TIEMPO ➔</button>
         </div>
     </div>
 
 <script>
-const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="280">' +
-    '<rect width="100%" height="100%" fill="#1a1a1a"/>' +
-    '<text x="50%" y="50%" fill="#8b0000" font-family="Georgia, serif" font-size="22" text-anchor="middle" dominant-baseline="middle">FOTOGRAFÍA EN DECRIPTACIÓN</text>' +
-    '</svg>'
-);
-
-// Identificador global para la fase actual. Se usa para evitar condiciones de carrera.
-let currentPhotoRequestId = 0;
-
-// --- CARGA ROBUSTA DE IMÁGENES CON CONTROL DE CONDICIÓN DE CARRERA ---
-function loadPhotoWithRetry(imgEl, url, expectedRequestId, attempt) {
-    attempt = attempt || 0;
-    const MAX_RETRIES = 3;
-    const DELAY_MS = 700;
-
-    // Forzar recarga real
-    const bustedUrl = url + (url.includes('?') ? '&' : '?') + '_retry=' + attempt;
-
-    const tempImg = new Image();
-    tempImg.referrerPolicy = 'no-referrer';
+// --- HISTORIA Y DATOS ---
+const storyTree = {
+    intro: {
+        yearId: "t-1939", date: "SEPTIEMBRE 1939", 
+        photo: "https://commons.wikimedia.org/wiki/Special:FilePath/MolotovRibbentropStalin.jpg?width=1000",
+        caption: "Firma del Pacto Ribbentrop-Mólotov en Moscú, 1939. Se observa al dictador soviético Iósif Stalin sonriendo al fondo, mientras su ministro de exteriores Mólotov firma el tratado junto al ministro alemán Von Ribbentrop.",
+        title: "EL FRACASO DEL APACIGUAMIENTO",
+        text: "Los fantasmas de la Primera Guerra Mundial aún aterrorizan a Europa. Frente a una Alemania que se rearma y exige recuperar su poder, tu gobierno y la República francesa han adoptado la *política de apaciguamiento*: ceder ante Hitler con la esperanza de saciar su apetito sin disparar una sola bala.<br><br>Pero los reportes de inteligencia que acaban de llegar a tu escritorio son aterradores. Hitler y Stalin han firmado el pacto Ribbentrop-Mólotov. En secreto, nazis y soviéticos acaban de dividirse Polonia. La diplomacia ha muerto. El mundo contiene el aliento y la decisión está en tus manos.",
+        dilemma: "RESOLUCIÓN OFICIAL REQUERIDA",
+        choices: [
+            { posture: "Vía Diplomática", text: "«¡La paz debe defenderse a ultranza! Quienes vivimos las trincheras sabemos que debemos seguir negociando. Una nueva guerra destruirá Europa.»", correct: false, consequence: "<b>El Eje invencible (1939):</b> Al aferrarte a la diplomacia tras la invasión de Polonia, permitiste que Hitler y Stalin absorbieran el este de Europa sin resistencia, otorgándole a Alemania recursos ilimitados para la guerra inminente." },
+            { posture: "Vía Militar", text: "«¡El apaciguamiento es un fracaso suicida! Alemania solo busca la hegemonía. Hay que trazar una línea roja hoy mismo y prepararnos para la sangre.»", correct: true }
+        ],
+        verdict: "El 1 de septiembre de 1939, las tropas alemanas invadieron Polonia, aniquilando el Estado polaco en una campaña rápida y brutal. La política de apaciguamiento se derrumbó de la noche a la mañana. Dos días después, sin más opciones, <b>Gran Bretaña y Francia declararon la guerra a Alemania.</b> Al amparo de su pacto secreto, las tropas soviéticas de Stalin también avanzaron para devorar el este polaco.",
+        next: "fall_of_france"
+    },
     
-    tempImg.onload = () => { 
-        // Si el identificador cambió, significa que el jugador avanzó de fase antes de que cargara esta foto
-        if (currentPhotoRequestId !== expectedRequestId) return; 
-        imgEl.src = tempImg.src; 
-    };
-    
-    tempImg.onerror = () => {
-        if (currentPhotoRequestId !== expectedRequestId) return; // Abortar reintento si la fase cambió
-        
-        if (attempt < MAX_RETRIES) {
-            setTimeout(() => {
-                if (currentPhotoRequestId !== expectedRequestId) return; // Abortar antes de relanzar
-                loadPhotoWithRetry(imgEl, url, expectedRequestId, attempt + 1);
-            }, DELAY_MS * (attempt + 1));
-        } else {
-            imgEl.src = FALLBACK_IMG;
+    fall_of_france: {
+        yearId: "t-1940", date: "JUNIO 1940", 
+        photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_As_Prime_Minister_1940-1945_MH26392.jpg?width=1000",
+        caption: "Retrato oficial de Winston Churchill como Primer Ministro del Reino Unido (1940-1945). Con su inquebrantable postura, se convirtió en el símbolo absoluto de la resistencia británica contra el nazismo.",
+        title: "LA CAÍDA DE FRANCIA Y EL BLITZ",
+        text: "La ofensiva alemana ha sido fulminante. La famosa 'línea Maginot' de hormigón armado ha fracasado por completo frente a la embestida nazi. Noruega, Dinamarca, Holanda y Bélgica han caído. Hoy, 22 de junio de 1940, el gobierno francés acaba de firmar un humillante armisticio en el mismo vagón de tren donde Alemania se rindió en 1918.<br><br>Mussolini, oliendo la sangre, acaba de meter a Italia en la guerra. Estás completamente solo. Los bombarderos de la Luftwaffe oscurecen el cielo de Inglaterra, destrozando industrias y hogares. Es la hora más oscura del imperio.",
+        dilemma: "DIRECTIVA PARA EL PUEBLO BRITÁNICO",
+        choices: [
+            { posture: "Gabinete de Crisis", text: "«Europa entera está bajo el control del Eje. Enfrentamos la aniquilación desde el aire. Debemos tragar nuestro orgullo y buscar un armisticio para salvar la isla.»", correct: false, consequence: "<b>El Armisticio Británico (1940):</b> Al capitular ante el bombardeo nazi, Gran Bretaña fue neutralizada. Sin la isla como base de operaciones segura, la liberación futura de Europa por parte de Estados Unidos se volvió logísticamente imposible." },
+            { posture: "Winston Churchill", text: "«¡Resistir el bombardeo! Lograremos la victoria a cualquier precio, a despecho del terror, por muy largo y penoso que sea el camino. No nos rendiremos jamás.»", correct: true }
+        ],
+        verdict: "Bajo el inquebrantable liderazgo de Winston Churchill, <b>Gran Bretaña siguió resistiendo en soledad</b> y respondió con ataques aéreos sobre Berlín. La moral civil británica no se quebró, y la moderna y secreta red de estaciones de radar impidió que la Luftwaffe atacara por sorpresa, salvando a la isla de la destrucción total.",
+        next: "barbarossa"
+    },
+
+    barbarossa: {
+        yearId: "t-1941", date: "VERANO 1941", 
+        photo: "https://commons.wikimedia.org/wiki/Special:FilePath/RIAN_archive_44732_Soviet_soldiers_attack_house.jpg?width=1000",
+        caption: "Infantería del Ejército Rojo soviético combatiendo encarnizadamente entre las ruinas. Tras el brutal ataque sorpresa alemán, protagonizaron una de las defensas urbanas más sangrientas de la historia.",
+        title: "OPERACIÓN BARBARROJA",
+        text: "Incapaz de quebrar tu resistencia en la isla, Hitler ha tomado una decisión que cambiará el rumbo de la humanidad: ha roto su pacto con Stalin y ha ordenado la invasión de la Unión Soviética.<br><br>Tres millones de soldados y escuadrones de la muerte de las SS avanzan hacia Leningrado, Moscú y Ucrania, masacrando a la población y a los judíos a su paso. Stalin, que desestimó obstinadamente los informes de inteligencia, ha sido tomado por sorpresa y sus líneas retroceden en pánico. El avance alemán parece imparable.",
+        dilemma: "ORDEN DEL COMANDANTE SOVIÉTICO",
+        choices: [
+            { posture: "Estado Mayor", text: "«Debemos rendir las ciudades y salvar a la población del avance de la Wehrmacht. Reorganicemos el ejército en la retaguardia; no podemos frenarlos hoy.»", correct: false, consequence: "<b>La Caída de Moscú (1941):</b> Al negarte a usar la táctica de 'tierra quemada', la Wehrmacht avanzó rápidamente capturando comida e industrias intactas. Moscú cayó antes del invierno, provocando el colapso temprano de la Unión Soviética." },
+            { posture: "Dictado de Stalin", text: "«¡Ni un paso atrás! Destruyan todo a su paso. Aplicaremos la táctica de 'tierra quemada' para que el invasor nazi se muera de hambre y frío en nuestro territorio.»", correct: true }
+        ],
+        verdict: "Stalin ordenó resistir hasta el límite absoluto de las fuerzas y aplicar la devastadora táctica de <b>'tierra quemada'</b>, no dejando ni una pizca de recursos para el invasor. Las tropas alemanas se toparon de frente con un duro invierno ruso para el que no estaban equipadas. A principios de 1943, en la sangrienta y decisiva <b>batalla de Stalingrado</b>, el ejército alemán se rindió. El mito de su invencibilidad había sido quebrado.",
+        next: "d_day"
+    },
+
+    d_day: {
+        yearId: "t-1944", date: "JUNIO 1944", 
+        photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Into_the_Jaws_of_Death_23-0455M_edit.jpg?width=1000",
+        caption: "Conocida como 'Las Fauces de la Muerte', esta imagen captura a tropas estadounidenses desembarcando de una lancha Higgins bajo intenso fuego de ametralladoras en la playa de Omaha, Normandía.",
+        title: "LA GRAN ALIANZA",
+        text: "Es el año 1944. Las diferencias ideológicas entre el capitalismo occidental y el comunismo soviético han quedado temporalmente sepultadas para aplastar al Eje nazi-fascista. Eres parte de la 'Gran Alianza'.<br><br>Desde el este, el Ejército Rojo de Stalin avanza como una aplanadora ensangrentada hacia Berlín, empujando a los alemanes de regreso. Ahora, Stalin te exige a gritos que abras un segundo frente militar en el oeste para dividir las fuerzas de Hitler. La geopolítica de la posguerra está en juego, y el mundo te observa.",
+        dilemma: "PLANIFICACIÓN DE LA INVASIÓN ANFIBIA",
+        choices: [
+            { posture: "Estrategia Periférica", text: "«Dejemos que nazis y soviéticos se desangren en las ruinas del este. Preservaremos nuestras fuerzas y atacaremos militarmente por la periferia europea.»", correct: false, consequence: "<b>El Telón de Acero Absoluto (1944):</b> Al no abrir el frente en Normandía, el Ejército Rojo derrotó a Alemania por sí solo. Al finalizar la guerra, Stalin controlaba dictatorialmente toda la Europa Continental hasta la costa de Francia." },
+            { posture: "Operación Overlord", text: "«Crucemos el Canal de la Mancha en este instante. Abramos un segundo frente masivo en las playas de Francia y marchemos directamente sobre Berlín.»", correct: true }
+        ],
+        verdict: "El 6 de junio de 1944, en el famoso <b>'Día D'</b>, las tropas aliadas desembarcaron masivamente en las playas de Normandía, abriendo por fin el sangriento segundo frente que exigía Stalin. A fines de agosto, París fue liberada. Acorralado en su búnker de Berlín por los soviéticos en el este y los aliados en el oeste, Hitler se suicidó el 30 de abril de 1945. La cúpula militar alemana se rendiría una semana después.",
+        next: "atomic"
+    },
+
+    atomic: {
+        yearId: "t-1945", date: "AGOSTO 1945", 
+        photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Atomic_cloud_over_Hiroshima.jpg?width=1000",
+        caption: "Una colosal nube radiactiva en forma de hongo elevándose a más de 18.000 metros de altura sobre la ciudad de Hiroshima, minutos después de la detonación de la primera bomba atómica.",
+        title: "EL FUEGO NUCLEAR",
+        text: "Europa está en ruinas, pero en Asia, la implacable masacre del Pacífico continúa. Has exigido la rendición incondicional del Imperio Nipón, pero el premier japonés ha rechazado el ultimátum.<br><br>Sobre tu mesa presidencial descansa el expediente ultrasecreto del Proyecto Manhattan. Utilizar esta nueva arma evitará la muerte de miles de tus soldados en una sangrienta invasión terrestre, pero abrirá las puertas a un horror tecnológico y humano sin precedentes en la historia de la civilización.",
+        dilemma: "AUTORIZACIÓN PRESIDENCIAL DEFINITIVA",
+        choices: [
+            { posture: "Comité Científico", text: "«¡No la usemos! Es una masacre de civiles inútil. Solo buscamos probar el arma e intimidar a Moscú para quedar como únicos vencedores. Es una atrocidad moral.»", correct: false, consequence: "<b>La Operación Downfall (1945):</b> Al rechazar la opción nuclear, te viste forzado a invadir Japón por tierra. La guerra del Pacífico se extendió hasta 1947, cobrándose la vida de un millón de soldados aliados y arrasando con la población civil japonesa en combate urbano." },
+            { posture: "Despacho Oval (Truman)", text: "«Autorizar el lanzamiento sobre las ciudades. Hay que poner fin a esta guerra de una vez por todas y evitar un baño de sangre mayor en la invasión de Japón.»", correct: true }
+        ],
+        verdict: "El presidente Truman dio la orden definitiva. El 6 de agosto de 1945, el bombardero *Enola Gay* apareció sobre el cielo de Hiroshima. De súbito, <b>un resplandor de luz blanquecina rosada y una trepidación monstruosa</b> fueron seguidos por un viento abrasador que barrió con todo a su paso.<br><br>Tres días después, Nagasaki sufrió el mismo destino. Tras la aniquilación y la larga agonía provocada por la radiactividad, el emperador japonés habló por radio anunciando la rendición incondicional.",
+        next: "evaluation"
+    },
+
+    evaluation: {
+        yearId: "t-postwar", date: "POSGUERRA", 
+        photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Yalta_Conference_1945_Churchill%2C_Stalin%2C_Roosevelt.jpg?width=1000",
+        caption: "Los 'Tres Grandes' (Winston Churchill, Franklin D. Roosevelt y Iósif Stalin) fotografiados en la Conferencia de Yalta (febrero de 1945), donde decidieron la partición geopolítica de la Europa de posguerra.",
+        title: "CONCLUSIÓN DE LA SIMULACIÓN",
+        text: "La guerra más letal en la historia de la humanidad ha terminado. En las tensas conferencias de Yalta y Potsdam, los líderes de la Gran Alianza acordaron dividir a Alemania en cuatro zonas de ocupación militar. Han aprobado el plan de las 'Cuatro D': desnazificación, desmilitarización, democratización y descartelización. Además, los líderes nazis sobrevivientes se enfrentarán a los inminentes juicios de Núremberg.<br><br>Sin embargo, con el enemigo nazi finalmente erradicado, la alianza de conveniencia entre las democracias occidentales y el régimen comunista soviético pronto se fracturará, dando inicio a una nueva era global dividida y sombría.",
+        dilemma: "", choices: [], verdict: "", next: ""
+    }
+};
+
+// --- OPTIMIZACIÓN: PRECARGA OCULTA DE IMÁGENES ---
+(function preloadAllImages() {
+    for (let key in storyTree) {
+        if (storyTree[key].photo) {
+            let img = new Image();
+            img.src = storyTree[key].photo;
         }
-    };
-    
-    tempImg.src = bustedUrl;
+    }
+})();
+
+// --- EFECTO VISUAL MEJORADO: POLVO ATMOSFÉRICO (CANVAS) ---
+(function initDust() {
+    const canvas = document.getElementById('dust-canvas');
+    const ctxCanvas = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < 60; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.2, 
+            vy: (Math.random() * -0.3) - 0.1, 
+            r: Math.random() * 2.0 + 1.0, 
+            alpha: Math.random() * 0.5 + 0.2 
+        });
+    }
+
+    function drawDust() {
+        ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctxCanvas.shadowBlur = 4;
+        ctxCanvas.shadowColor = 'rgba(255, 230, 200, 0.7)';
+
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            
+            if (p.y < 0) p.y = canvas.height;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+
+            ctxCanvas.beginPath();
+            ctxCanvas.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctxCanvas.fillStyle = `rgba(255, 240, 220, ${p.alpha})`; 
+            ctxCanvas.fill();
+        });
+        requestAnimationFrame(drawDust);
+    }
+    drawDust();
+})();
+
+// --- VARIABLES GLOBALES DE ESTADO ---
+let playerScore = 0;
+let playerDeviations = []; 
+let gameStarted = false;
+let actx = null; 
+let noiseBuffer = null;
+let ambSources = [];
+let ambGain = null;
+let ambientIntervals = [];
+let ambientTimeoutId = null; 
+
+function startGame() {
+    let music = document.getElementById('bg-music');
+    music.volume = 0.7; 
+    music.currentTime = 0; 
+    music.addEventListener('error', () => console.log("No se pudo cargar la música."));
+    music.play().catch(e => console.log("Audio bloqueado:", e));
+
+    getAudioContext(); 
+    gameStarted = true;
+
+    let startScreen = document.getElementById('start-screen');
+    startScreen.style.opacity = '0';
+    setTimeout(() => { startScreen.style.display = 'none'; }, 500);
+
+    enterFullScreen();
+    renderPhase('intro');
 }
 
-let actx = null;
+document.addEventListener('visibilitychange', () => {
+    let music = document.getElementById('bg-music');
+    if (!gameStarted) return;
+    
+    if (document.hidden) {
+        if (music) music.pause();
+        if (actx && actx.state === 'running') actx.suspend(); 
+    } else {
+        if (music) music.play().catch(() => {});
+        if (actx && actx.state === 'suspended') actx.resume(); 
+    }
+});
+
+function enterFullScreen() {
+    try {
+        let docElm = document.documentElement;
+        if (docElm.requestFullscreen) docElm.requestFullscreen().catch(()=>{});
+        else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
+        else if (docElm.mozRequestFullScreen) docElm.mozRequestFullScreen();
+        else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
+    } catch (e) {}
+}
+
+function toggleFullScreen() {
+    try {
+        let isFull = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        if (!isFull) enterFullScreen();
+        else {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+            else if (document.msExitFullscreen) document.msExitFullscreen();
+        }
+    } catch (e) {}
+}
+
 function getAudioContext() {
     if (actx) return actx;
-    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } 
-    catch (e) { actx = false; }
+    try { 
+        actx = new (window.AudioContext || window.webkitAudioContext)(); 
+        let bufferSize = actx.sampleRate * 3.0; 
+        noiseBuffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+        let data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+    } catch (e) { actx = false; }
     return actx;
+}
+
+function clearAmbient() {
+    if (ambientTimeoutId) {
+        clearTimeout(ambientTimeoutId);
+        ambientTimeoutId = null;
+    }
+    ambientIntervals.forEach(clearInterval);
+    ambientIntervals = [];
+
+    if (ambGain && actx) {
+        let oldGain = ambGain;
+        let oldSources = ambSources;
+        ambGain = null;
+        ambSources = [];
+
+        try {
+            let now = actx.currentTime;
+            oldGain.gain.cancelScheduledValues(now);
+            oldGain.gain.setValueAtTime(oldGain.gain.value || 0.001, now);
+            oldGain.gain.linearRampToValueAtTime(0.001, now + 0.3); 
+            setTimeout(() => {
+                oldSources.forEach(s => { try { s.stop(); s.disconnect(); } catch(e){} });
+                try { oldGain.disconnect(); } catch(e){}
+            }, 400);
+        } catch(e) {}
+    }
+}
+
+// --- GENERADOR DE PAISAJES SONOROS REALISTAS ---
+function playAmbient(yearId) {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    
+    clearAmbient();
+
+    ambientTimeoutId = setTimeout(() => {
+        if(!gameStarted) return;
+        
+        ambGain = ctx.createGain();
+        ambGain.connect(ctx.destination);
+        ambGain.gain.setValueAtTime(0.001, ctx.currentTime);
+
+        if (yearId === "t-1939") { 
+            ambGain.gain.setValueAtTime(0.06, ctx.currentTime);
+            let tick = true;
+            let clockInt = setInterval(() => {
+                let osc = ctx.createOscillator(); let g = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = tick ? 850 : 650;
+                tick = !tick;
+                g.gain.setValueAtTime(0.08, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+                osc.connect(g); g.connect(ambGain);
+                osc.start(); osc.stop(ctx.currentTime + 0.045);
+            }, 1000);
+            ambientIntervals.push(clockInt);
+
+        } else if (yearId === "t-1940") { 
+            let osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(380, ctx.currentTime);
+            
+            let lfo = ctx.createOscillator();
+            lfo.type = 'triangle';
+            lfo.frequency.value = 0.12; 
+            let lfoGain = ctx.createGain();
+            lfoGain.gain.value = 180;
+            lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+            lfo.start();
+            
+            let filter = ctx.createBiquadFilter(); 
+            filter.type = 'bandpass'; filter.frequency.value = 500; filter.Q.value = 2.0;
+            
+            osc.connect(filter); filter.connect(ambGain);
+            osc.start();
+            ambSources.push(osc, lfo);
+            ambGain.gain.linearRampToValueAtTime(0.008, ctx.currentTime + 3);
+
+        } else if (yearId === "t-1941") { 
+            if (noiseBuffer) {
+                let noise = ctx.createBufferSource();
+                noise.buffer = noiseBuffer;
+                noise.loop = true;
+                
+                let filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass'; filter.frequency.value = 220; filter.Q.value = 2.5; 
+                
+                let lfo = ctx.createOscillator();
+                lfo.type = 'sine'; lfo.frequency.value = 0.12;
+                let lfoGain = ctx.createGain(); lfoGain.gain.value = 350;
+                lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+                lfo.start();
+                
+                noise.connect(filter); filter.connect(ambGain);
+                noise.start();
+                ambSources.push(noise, lfo);
+                ambGain.gain.linearRampToValueAtTime(0.035, ctx.currentTime + 3);
+            }
+
+        } else if (yearId === "t-1944") { 
+            if (noiseBuffer) {
+                let rumble = ctx.createBufferSource();
+                rumble.buffer = noiseBuffer;
+                rumble.loop = true;
+                let rumbleFilter = ctx.createBiquadFilter();
+                rumbleFilter.type = 'lowpass'; rumbleFilter.frequency.value = 260;
+                let rumbleGain = ctx.createGain(); rumbleGain.gain.value = 0.08;
+                rumble.connect(rumbleFilter); rumbleFilter.connect(rumbleGain); rumbleGain.connect(ambGain);
+                rumble.start();
+                ambSources.push(rumble);
+
+                let surf = ctx.createBufferSource();
+                surf.buffer = noiseBuffer;
+                surf.loop = true; 
+                let surfFilter = ctx.createBiquadFilter();
+                surfFilter.type = 'bandpass'; surfFilter.Q.value = 0.9; surfFilter.frequency.value = 350;
+                let surfGain = ctx.createGain(); surfGain.gain.value = 0.001;
+                surf.connect(surfFilter); surfFilter.connect(surfGain); surfGain.connect(ambGain);
+                surf.start();
+                ambSources.push(surf);
+
+                ambGain.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 2);
+
+                let waveCycle = () => {
+                    let now = ctx.currentTime;
+                    surfGain.gain.cancelScheduledValues(now);
+                    surfGain.gain.setValueAtTime(Math.max(surfGain.gain.value, 0.005), now);
+                    surfGain.gain.linearRampToValueAtTime(0.24, now + 2.5);
+                    surfFilter.frequency.exponentialRampToValueAtTime(1600, now + 2.5);
+                    
+                    surfGain.gain.exponentialRampToValueAtTime(0.005, now + 6.2);
+                    surfFilter.frequency.exponentialRampToValueAtTime(250, now + 6.0);
+                };
+
+                waveCycle();
+                let waveInt = setInterval(waveCycle, 6500);
+                ambientIntervals.push(waveInt);
+            }
+
+        } else if (yearId === "t-1945") { 
+            let osc1 = ctx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 46;
+            let osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 49; 
+            
+            let moanFilter = ctx.createBiquadFilter();
+            moanFilter.type = 'bandpass'; moanFilter.frequency.value = 320; moanFilter.Q.value = 6; 
+            
+            let lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.15;
+            let lfoGain = ctx.createGain(); lfoGain.gain.value = 150;
+            lfo.connect(lfoGain); lfoGain.connect(moanFilter.frequency);
+            lfo.start();
+
+            osc1.connect(moanFilter); osc2.connect(moanFilter);
+            moanFilter.connect(ambGain);
+            osc1.start(); osc2.start();
+            ambSources.push(osc1, osc2, lfo);
+
+            let tinnitus = ctx.createOscillator();
+            tinnitus.type = 'sine'; tinnitus.frequency.value = 3800;
+            let tinGain = ctx.createGain(); tinGain.gain.value = 0.15;
+            tinnitus.connect(tinGain); tinGain.connect(ambGain);
+            tinnitus.start();
+            ambSources.push(tinnitus);
+
+            ambGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 3); 
+            
+        } else if (yearId === "t-postwar") { 
+            // Silencio
+        }
+    }, 400); 
 }
 
 function playSound(type) {
     try {
-        const ctx = getAudioContext();
-        if (!ctx) return; 
+        const ctx = getAudioContext(); if (!ctx) return; 
         if (ctx.state === 'suspended') ctx.resume().catch(()=>{});
-        const osc = ctx.createOscillator(); const gain = ctx.createGain();
-
+        
         if(type === 'stamp') {
-            osc.type = 'square'; osc.frequency.setValueAtTime(120, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.6, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.start(); osc.stop(ctx.currentTime + 0.15);
+            let osc = ctx.createOscillator(); let gain = ctx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(180, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+            osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.2);
+
+            if (noiseBuffer) {
+                let noise = ctx.createBufferSource(); noise.buffer = noiseBuffer;
+                let filter = ctx.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 1000;
+                let g2 = ctx.createGain(); g2.gain.setValueAtTime(0.6, ctx.currentTime); g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                noise.connect(filter); filter.connect(g2); g2.connect(ctx.destination); noise.start(); noise.stop(ctx.currentTime + 0.15);
+            }
         } else if(type === 'paper') {
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime);
-            gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.start(); osc.stop(ctx.currentTime + 0.08);
+            if (noiseBuffer) {
+                let noise = ctx.createBufferSource(); noise.buffer = noiseBuffer;
+                let filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 800; 
+                let gain = ctx.createGain(); gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination); noise.start(); noise.stop(ctx.currentTime + 0.4);
+            }
+        } else if(type === 'typekey') {
+            let osc = ctx.createOscillator(); let gain = ctx.createGain();
+            osc.type = 'square'; osc.frequency.setValueAtTime(100 + Math.random()*150, ctx.currentTime);
+            gain.gain.setValueAtTime(0.003, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.04);
+            osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.05);
         }
     } catch (e) {}
 }
 
-function enterFullScreen() {
-    try {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            let docElm = document.documentElement;
-            if (docElm.requestFullscreen) docElm.requestFullscreen().catch(()=>{});
-            else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
-        }
-    } catch (e) {}
-}
-
-let stats = { moral: 80, inf: 10, debt: 20, mil: 20 };
-let nextPhaseId = null;
-
-// --- ÁRBOL NARRATIVO EXTENDIDO CON NARRATIVA VISCERAL Y FINALES LOCOS ---
-const storyTree = {
-    intro: {
-        date: "MAYO 1940", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_As_Prime_Minister_1940-1945_MH26392.jpg", altHistory: false,
-        title: "LA CAÍDA DE FRANCIA",
-        text: "París ha caído. El olor a pólvora cruza el Canal de la Mancha y se cuela en tu gabinete subterráneo. Estás acorralado. Los reportes indican que las arcas del Tesoro sangran y el PBI se desploma a niveles de la Edad Media.<br><br>Lord Halifax, pálido y temblando, te ruega firmar un pacto humillante con Hitler para salvar la libra esterlina. En la otra cabecera, Winston Churchill golpea la mesa exigiendo exprimir hasta la última gota de sudor civil para fabricar balas. Si tu pulso tiembla al firmar hoy, mañana esta isla hablará alemán.",
-        choices: [
-            { title: "DESTROZAR LA ECONOMÍA CIVIL (Línea Histórica)", hint: "Reconversión bélica total. Exprime el PBI.", impact: {moral: -10, inf: +20, debt: +20, mil: +30}, next: "blitz", news: "¡SANGRE, ESFUERZO, LÁGRIMAS Y SUDOR!", sub: "Churchill rechaza la paz. El país se prepara para el matadero." },
-            { title: "PACTAR CON EL DIABLO (Línea Alternativa)", hint: "Firma la paz. Salva las cuentas del Estado.", impact: {moral: +20, inf: -10, debt: -10, mil: -20}, next: "alt_paz", news: "LONDRES SE RINDE AL PACTO", sub: "El gobierno pacta con Alemania. La libra esterlina respira." }
-        ]
-    },
+// Zoom en Fotos con bloqueo de menú emergente táctil adicional
+(function initPhotoZoom() {
+    const img = document.getElementById('ui-photo');
+    const container = document.getElementById('ui-photo-box');
     
-    blitz: {
-        date: "SEPTIEMBRE 1940", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/WWII_London_Blitz_East_London.jpg", altHistory: false,
-        title: "EL BLITZ Y LA INFLACIÓN",
-        text: "El techo del búnker tiembla con cada bomba de la Luftwaffe. Arriba las sirenas aúllan; abajo tus números aúllan más fuerte. Cerraste las fábricas civiles para ensamblar bombarderos. El resultado: estantes vacíos y miles de billetes persiguiendo la nada. <b>La hiperinflación te respira en la nuca.</b><br><br>El economista John Maynard Keynes desliza una carpeta amarillenta: 'Ahorro Forzoso'. Propone confiscar los salarios obreros por decreto para secar la calle de efectivo. Churchill, desesperado, te acerca otro expediente clasificado: un arma biológica ultra-secreta de bajo costo.",
-        choices: [
-            { title: "ROBARLES EL SUELDO HOY (Plan Keynes)", hint: "Baja la inflación, asfixia al pueblo en vida.", impact: {moral: -25, inf: -30, debt: +10, mil: +10}, next: "lend_lease", news: "¡EL TESORO NOS ROBA EL SUDOR!", sub: "Huelgas masivas mientras el Ministro confisca las pagas por decreto." },
-            { title: "DESTAPAR EL FRASCO BIOLÓGICO", hint: "Operación Vegetariano. Terrorismo de bajo costo fiscal.", impact: {moral: -10, inf: +20, debt: 0, mil: +40}, next: "alt_guerra_biologica", news: "NUBES OSCURAS EN EL TESORO", sub: "El gobierno desvía fondos hacia proyectos clasificados macabros." }
-        ]
-    },
+    // BLOQUEO DE MENÚ CONTEXTUAL NATIVO (Clic derecho / Mantener presionado)
+    img.addEventListener('contextmenu', e => e.preventDefault());
+    container.addEventListener('contextmenu', e => e.preventDefault());
+    
+    const maxScale = 2.5; let scale = 1; let translate = { x: 0, y: 0 }; let pinchStartDist = 0; let startMid = { x: 0, y: 0 }; let baseScale = 1; let baseTranslate = { x: 0, y: 0 }; let dragging = false; let dragStart = { x: 0, y: 0 };
+    function dist(t) { const dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY; return Math.sqrt(dx * dx + dy * dy); }
+    function mid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 }; }
+    function clampTranslate(tx, ty, s) { const rect = container.getBoundingClientRect(); const maxX = (rect.width * (s - 1)) / 2; const maxY = (rect.height * (s - 1)) / 2; return { x: Math.min(maxX, Math.max(-maxX, tx)), y: Math.min(maxY, Math.max(-maxY, ty)) }; }
+    function apply(instant) { img.style.transition = instant ? 'none' : 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)'; img.style.transform = `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${scale})`; }
+    function reset() { scale = 1; translate = { x: 0, y: 0 }; pinchStartDist = 0; dragging = false; container.classList.remove('zooming'); img.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)'; img.style.transform = 'translate3d(0px, 0px, 0) scale(1)'; }
+    img.addEventListener('touchstart', (e) => { if (e.touches.length === 2) { pinchStartDist = dist(e.touches); startMid = mid(e.touches); baseScale = scale; baseTranslate = { ...translate }; container.classList.add('zooming'); } }, { passive: true });
+    img.addEventListener('touchmove', (e) => { if (e.touches.length === 2 && pinchStartDist > 0) { e.preventDefault(); const newMid = mid(e.touches); let s = baseScale * (dist(e.touches) / pinchStartDist); s = Math.min(maxScale, Math.max(1, s)); translate = clampTranslate(baseTranslate.x + (newMid.x - startMid.x), baseTranslate.y + (newMid.y - startMid.y), s); scale = s; apply(true); } }, { passive: false });
+    img.addEventListener('touchend', (e) => { if (e.touches.length < 2) reset(); }); img.addEventListener('touchcancel', reset);
+    img.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = true; scale = maxScale * 0.72; dragStart = { x: e.clientX - translate.x, y: e.clientY - translate.y }; container.classList.add('zooming'); apply(false); });
+    window.addEventListener('mousemove', (e) => { if (!dragging) return; translate = clampTranslate(e.clientX - dragStart.x, e.clientY - dragStart.y, scale); apply(true); });
+    window.addEventListener('mouseup', () => { if (dragging) reset(); }); container.addEventListener('mouseleave', () => { if (dragging) reset(); });
+})();
 
-    alt_paz: {
-        date: "ENERO 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Lord_Halifax_1937.jpg", altHistory: true,
-        title: "LA PAZ ENGAÑOSA",
-        text: "En las calles de Londres la gente bebe cerveza y compra abrigos. Al no haber guerra, el PBI británico florece y el déficit es nulo. Pero el silencio es sepulcral.<br><br>La inteligencia militar te arroja fotos sobre la mesa: Hitler está reuniendo la armada más grande de la historia al otro lado del canal. Tu país no tiene ni un solo tanque para defenderse. El superávit fiscal es ahora la soga al cuello de la nación.",
-        choices: [
-            { title: "ARMAR AL PAÍS EN LA OSCURIDAD", hint: "Destruye el superávit. Despierta las sospechas de Berlín.", impact: {moral: -10, inf: +15, debt: +20, mil: +20}, next: "alt_traicion", news: "RUIDO DE FÁBRICAS EN LA NOCHE", sub: "Rumores de rearme masivo ponen el pacto de paz al borde del abismo." },
-            { title: "DISFRUTAR EL ESPEJISMO Y ESPERAR", hint: "Mantiene la macroeconomía perfecta. Ignora la amenaza.", impact: {moral: +20, inf: 0, debt: -20, mil: -20}, next: "alt_fascismo", news: "ÉPOCA DE ORO EN LONDRES", sub: "El consumismo crece mientras la sombra nazi cubre Europa." }
-        ]
-    },
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return arr;
+}
 
-    alt_fascismo: {
-        date: "OCTUBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Oswald_mosley_MP.jpg", altHistory: true,
-        title: "EL ESTADO TÍTERE",
-        text: "<b>FINAL LOCO:</b> Las sirenas ni siquiera sonaron. Sin ejército para defender la isla, los tanques alemanes desfilaron frente al Big Ben sin disparar un tiro. Oswald Mosley y sus camisas negras han tomado el parlamento bajo tutela nazi.<br><br>La próspera economía civil que tanto cuidaste ahora es expoliada para alimentar la maquinaria de guerra del Tercer Reich. Sobreviviste a la recesión, pero perdiste el país.",
-        choices: [{ title: "ASUMIR LA DERROTA TOTAL", impact: null, next: "intro", news: "EL IMPERIO HA CAÍDO", sub: "Oswald Mosley jura lealtad a Berlín en una Londres ocupada." }]
-    },
+function decryptText(element, finalString) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#%&*"; let iterations = 0;
+    clearInterval(element.decryptInterval); 
+    element.style.height = 'auto'; element.style.overflow = 'visible';
+    element.innerText = finalString; element.style.height = element.offsetHeight + 'px'; element.style.overflow = 'hidden';
+    element.decryptInterval = setInterval(() => {
+        element.innerText = finalString.split("").map((char, index) => {
+            if(index < iterations) return char; if(char === " ") return " "; return chars[Math.floor(Math.random() * chars.length)];
+        }).join("");
+        if(iterations >= finalString.length) { clearInterval(element.decryptInterval); element.style.height = 'auto'; element.style.overflow = 'visible'; }
+        iterations += 1/5; 
+    }, 45);
+}
 
-    alt_traicion: {
-        date: "NOVIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Heinkel_He_111_during_the_Battle_of_Britain.jpg", altHistory: true,
-        title: "OPERACIÓN LEÓN MARINO",
-        text: "<b>¡TRAICIÓN!</b> Las alarmas destrozan la madrugada. Alemania rompió el pacto. La Luftwaffe está reduciendo a cenizas las fábricas civiles que te negaste a militarizar.<br><br>La paz era una farsa para ganar tiempo. Estás en guerra, pero con una economía de papel. O le suplicas de rodillas a Estados Unidos que te envíe armas, o mañana Londres será un cráter.",
-        choices: [
-            { title: "SUPLICAR DE RODILLAS A WASHINGTON", hint: "Destroza el orgullo. Te hunde en deuda externa inmediata.", impact: {moral: -40, inf: +30, debt: +60, mil: +30}, next: "lend_lease", news: "¡LA LUFTWAFFE INCINERA LONDRES!", sub: "El pacto era una trampa. Gran Bretaña, arrodillada, ruega auxilio a EE.UU." }
-        ]
-    },
+// --- EFECTO MÁQUINA DE ESCRIBIR (OPTIMIZADO PARA EVITAR BUGS DE RENDER) ---
+function typeWriterHTML(element, htmlString, speed, callback) {
+    element.innerHTML = '';
+    let i = 0; let isTyping = true; let currentHTML = '';
+    
+    clearInterval(element.typeInterval);
+    clearInterval(element.typeSound);
+    
+    element.typeSound = setInterval(() => { if(isTyping) playSound('typekey'); }, 60);
 
-    alt_guerra_biologica: {
-        date: "ABRIL 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Gruinard_Island.jpg", altHistory: true,
-        title: "LA RULETA RUSA BIOLÓGICA",
-        text: "Churchill destapa un frasco sellado. 'Operación Vegetariano'. Millones de pasteles de linaza infectados con Ántrax listos para llover sobre Alemania. Matará a su ganado y a millones de civiles. Ganarás la guerra sin gastar una sola libra esterlina.<br><br>Pero los biólogos están sudando frío: si el viento cambia, las esporas cruzarán el canal y exterminarán la agricultura británica. Es la jugada fiscal más barata y macabra de la historia.",
-        choices: [
-            { title: "DESATAR EL INFIERNO BIOLÓGICO", hint: "Peligro de extinción. Economía ahorrada, mundo arrasado.", impact: {moral: -50, inf: +50, debt: 0, mil: +80}, next: "alt_cuarentena", news: "LLUEVE MUERTE EN EUROPA", sub: "La Royal Air Force despliega un arma química de pesadilla." },
-            { title: "RETROCEDER Y PEDIR LIMOSNA A EE.UU.", hint: "Vuelve a la historia real. Te rindes a la deuda externa.", impact: {moral: +10, inf: 0, debt: +40, mil: -10}, next: "lend_lease", news: "EL GOBIERNO FRENA LA LOCURA", sub: "Churchill retrocede ante el terror del Ántrax y mira hacia América." }
-        ]
-    },
-
-    alt_cuarentena: {
-        date: "SEPTIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/British_gas_mask.jpg", altHistory: true,
-        title: "EL APOCALIPSIS SILENCIOSO",
-        text: "<b>FINAL LOCO:</b> Alemania es un cementerio silencioso. Ganaste muy barato.<br><br>Pero los vientos cambiaron y la nube negra cruzó el canal. Hoy, no queda una sola vaca viva en Gran Bretaña. Los cultivos se pudren. La inflación de un pedazo de pan llega al 10.000%. El dinero no se come. La isla es un páramo tóxico inhabitable y el Rey acaba de huir a Canadá. La macroeconomía ha muerto.",
-        choices: [{ title: "CERRAR EL ATAÚD DE LA NACIÓN", impact: null, next: "intro", news: "EL REY HUYE A CANADÁ", sub: "La isla británica es declarada zona muerta por contaminación biológica." }]
-    },
-
-    lend_lease: {
-        date: "MARZO 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/President_Franklin_D._Roosevelt-1941.jpg", altHistory: false,
-        title: "LA QUIEBRA DEL IMPERIO",
-        text: "Las bóvedas del Banco de Inglaterra están vacías. No queda oro. No quedan dólares. Roosevelt te ofrece la salvación: la ley 'Lend-Lease'. Munición y tanques ilimitados.<br><br>El diablo está en la letra chica: Washington exige que desmanteles tu monopolio imperial y les entregues la hegemonía financiera mundial. Firmar significa salvar tu vida hoy a cambio de entregar tu imperio mañana.",
-        choices: [
-            { title: "ARRODILLARSE ANTE WASHINGTON (Lend-Lease)", hint: "El ejército respira. La deuda hipoteca tu futuro por 50 años.", impact: {moral: 0, inf: 0, debt: +40, mil: +40}, next: "mano_obra", news: "ALIANZA DE PLATA Y DEUDA", sub: "EE.UU. nos financia la supervivencia a cambio de nuestro imperio económico." },
-            { title: "AFERRARSE AL ORGULLO IMPERIAL (Autarquía)", hint: "Defiende la soberanía financiera. Las tropas no tienen balas.", impact: {moral: -15, inf: +20, debt: 0, mil: -35}, next: "alt_hambre", news: "MORDER LA BALA EN SOLEDAD", sub: "Gran Bretaña peleará sola, sin dólares americanos ni suministros." }
-        ]
-    },
-
-    alt_hambre: {
-        date: "ENERO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Rally_in_Hyde_Park_during_the_General_Strike_of_1926.jpg", altHistory: true,
-        title: "LA FACTURA DEL ORGULLO",
-        text: "El orgullo se paga con sangre. Sin los dólares americanos, los puertos están secos. La ración de pan bajó a 100 gramos. Las madres hierven cuero para engañar al estómago. Las fábricas de tanques son galpones vacíos.<br><br>En los muelles, los obreros famélicos levantan banderas rojas y se niegan a ensamblar fusiles oxidados. La revolución comunista respira en tu nuca y el gobierno tambalea al borde del abismo.",
-        choices: [
-            { title: "TRAGARSE EL ORGULLO Y CAPITULAR", hint: "Reencauza la historia. Acepta el rescate americano tarde y caro.", impact: {moral: -10, inf: 0, debt: +60, mil: +30}, next: "mano_obra", news: "COLAPSO SOCIAL EVITADO EN EL LÍMITE", sub: "Ante los motines, el gobierno tira la toalla y acepta los dólares americanos." },
-            { title: "MANDAR AL EJÉRCITO A DISPARAR A OBREROS", hint: "Sofocar el hambre con plomo. Destrucción moral absoluta.", impact: {moral: -50, inf: 0, debt: 0, mil: -20}, next: "alt_revolucion", news: "FUEGO EN LAS CALLES DE LONDRES", sub: "El ejército recibe la orden de disparar contra los huelguistas hambrientos." }
-        ]
-    },
-
-    alt_revolucion: {
-        date: "MARZO 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Raising_a_flag_over_the_Reichstag.jpg", altHistory: true,
-        title: "LA REVOLUCIÓN DE LONDRES",
-        text: "<b>FINAL LOCO:</b> Ordenaste abrir fuego, pero los soldados tenían tanta hambre como los obreros. Bajaron los rifles, se giraron en redondo y marcharon directo hacia tu búnker.<br><br>Winston Churchill ha sido colgado en Trafalgar Square. La nueva República Socialista de Gran Bretaña ha firmado la paz incondicional. El mercado libre, el capitalismo y tu cargo han sido abolidos para siempre.",
-        choices: [{ title: "CONTEMPLAR EL FIN DE LA ERA", impact: null, next: "intro", news: "¡REVOLUCIÓN OBRERA!", sub: "La bandera roja ondea sobre los escombros del Palacio de Buckingham." }]
-    },
-
-    mano_obra: {
-        date: "DICIEMBRE 1941", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/A_woman_war_worker_machining_a_cylinder_block_for_a_Rolls_Royce_aero_engine._TR1141.jpg", altHistory: false,
-        title: "MÁQUINAS SIN ALMAS",
-        text: "Estados Unidos te inunda de acero, pero los galpones están vacíos. Los hombres están pudriéndose en el frente; no hay manos humanas para ensamblar las balas.<br><br>La única salida macroeconómica es un decreto brutal: arrancar a millones de mujeres de sus hogares y obligarlas por ley a operar maquinaria pesada, destrozando el tejido conservador de la sociedad británica. O firmas el decreto, o los tanques de Washington se oxidan en el puerto.",
-        choices: [
-            { title: "FORZAR EL RECLUTAMIENTO FEMENINO", hint: "Explota el PBI militar, desgarra el tejido social.", impact: {moral: -15, inf: 0, debt: 0, mil: +20}, next: "beveridge", news: "MUJERES ARRASTRADAS AL FRENTE INDUSTRIAL", sub: "Millones son obligadas a operar tornos y ensamblar misiles por decreto." }
-        ]
-    },
-
-    beveridge: {
-        date: "NOVIEMBRE 1942", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/William-Henry-Beveridge-1st-Baron-Beveridge.jpg", altHistory: false,
-        title: "EL PRECIO DE LA PAZ SOCIAL",
-        text: "La metralla igualó a ricos y pobres en los refugios. La gente está exhausta, desnutrida y furiosa. El economista William Beveridge tira sobre tu escritorio una bomba de tiempo: El Estado de Bienestar. Exige salud universal y educación gratuita para la posguerra.<br><br>Estás quebrado y endeudado hasta la médula con América. Asumir este gasto es un suicidio fiscal a largo plazo. Pero si defiendes la caja y vetas la propuesta, la clase obrera quemará el país en cuanto caiga el último nazi.",
-        choices: [
-            { title: "HIPOTECAR EL FUTURO (Firmar el Informe)", hint: "Compra la paz social hoy, condena el déficit estructural para siempre.", impact: {moral: +45, inf: +10, debt: +25, mil: 0}, next: "d_day", news: "EL CONTRATO DE SANGRE Y SALUD", sub: "El gobierno promete un Estado de Bienestar para compensar la masacre." },
-            { title: "DEFENDER LA CAJA FUERTE (Ortodoxia Fiscal)", hint: "Protege las cuentas públicas. Desata un odio social irreversible.", impact: {moral: -35, inf: -10, debt: -15, mil: 0}, next: "d_day", news: "NO HAY DINERO PARA PROMESAS VACÍAS", sub: "El Ministro de Hacienda rechaza financiar hospitales y pensiones." }
-        ]
-    },
-
-    d_day: {
-        date: "JUNIO 1944", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Into_the_Jaws_of_Death_23-0455M_edit.jpg", altHistory: false,
-        title: "LA ÚLTIMA GOTA DE SANGRE",
-        text: "La invasión es mañana. El Día D. Para que un millón de hombres cruce el canal y aplaste al Eje, tienes que desviar absolutamente cada litro de combustible, cada tren de carbón y cada caloría de la economía civil hacia la maquinaria militar. El país quedará paralizado al borde de la hambruna total.<br><br>Mientras tanto, Churchill fuma furioso viendo cómo Stalin devora el Este y te susurra un plan suicida: 'Operación Impensable'. Terminar con Hitler y mandar las tropas directamente a destruir Moscú.",
-        choices: [
-            { title: "APRETAR LOS DIENTES Y ACEPTAR LA PAZ", hint: "Termina la guerra histórica. Comienza la evaluación final.", impact: {moral: +20, inf: -10, debt: 0, mil: -10}, next: "final", news: "EL EJE COLAPSA", sub: "Europa es un cementerio humeante. Comienza una era de dura austeridad." },
-            { title: "DESATAR LA TERCERA GUERRA MUNDIAL", hint: "Atacar a la Unión Soviética. Apuesta militar insana.", impact: {moral: -80, inf: +50, debt: +50, mil: +30}, next: "alt_impensable", news: "CHURCHILL ATACA A STALIN", sub: "Sin respiro para sepultar a sus muertos, los británicos marchan hacia Moscú." }
-        ]
-    },
-
-    alt_impensable: {
-        date: "AGOSTO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Yalta_Conference_1945_Churchill,_Stalin,_Roosevelt.jpg", altHistory: true,
-        title: "EL FUEGO NUCLEAR",
-        text: "<b>FINAL LOCO:</b> La orden fue dada. Tropas británicas y soviéticas chocaron en las ruinas ensangrentadas de Europa. Pero tu economía era un fantasma de papel. Sin combustible civil ni fondos de reserva, el Ejército Rojo aplastó tu ofensiva huérfana y marchó hasta París sin resistencia.<br><br>En un acto final de locura, cayeron las primeras bombas atómicas. Has incinerado el mundo entero antes de que naciera la Guerra Fría.",
-        choices: [{ title: "CONTEMPLAR LAS CENIZAS", impact: null, next: "intro", news: "EL MUNDO EN LLAMAS GLOBALES", sub: "La economía se evapora bajo el hongo nuclear de la Tercera Guerra Mundial." }]
-    },
-
-    final: {
-        date: "JULIO 1945", photo: "https://commons.wikimedia.org/wiki/Special:FilePath/Winston_Churchill_waves_to_crowds_in_Whitehall_in_London_as_they_celebrate_VE_Day,_8_May_1945._H41849.jpg", altHistory: false,
-        title: "EL VEREDICTO DE LAS CENIZAS",
-        text: "Las armas callaron. El humo se disipa en Londres. Es hora de abrir los libros de contabilidad manchados de sangre y enfrentar el verdadero saldo de la masacre. El veredicto de tu gestión determinará si dejaste una nación soberana, una colonia endeudada, o un polvorín a punto de estallar.<br><br><div id='final-report'></div>",
-        choices: [{ title: "ARCHIVAR EL EXPEDIENTE (Reiniciar)", impact: null, next: "intro", news: "EL GABINETE SE DISUELVE EN EL TIEMPO", sub: "Una nueva era económica comienza bajo el paradigma del Keynesianismo." }]
+    function endTyping() {
+        if(!isTyping) return;
+        isTyping = false;
+        clearInterval(element.typeInterval);
+        clearInterval(element.typeSound);
+        element.innerHTML = htmlString; 
+        if(callback) callback();
     }
-};
 
-function updateUI() {
-    for(let k in stats) { stats[k] = Math.max(0, Math.min(100, stats[k])); }
-    
-    document.getElementById('fill-moral').style.width = stats.moral + "%";
-    document.getElementById('fill-inf').style.width = stats.inf + "%";
-    document.getElementById('fill-debt').style.width = stats.debt + "%";
-    document.getElementById('fill-mil').style.width = stats.mil + "%";
-    
-    document.getElementById('fill-inf').style.backgroundColor = stats.inf > 70 ? "#8b0000" : "#e74c3c";
-    document.getElementById('fill-debt').style.backgroundColor = stats.debt > 70 ? "#8b0000" : "#f39c12";
-    document.getElementById('fill-moral').style.backgroundColor = stats.moral < 30 ? "#c0392b" : "#2ecc71";
+    element.onclick = endTyping;
+
+    element.typeInterval = setInterval(() => {
+        if(!isTyping) return;
+        
+        let charsToAdd = 3; 
+        while(charsToAdd > 0 && i < htmlString.length) {
+            while (i < htmlString.length && htmlString.charAt(i) === '<') {
+                let tagEnd = htmlString.indexOf('>', i);
+                if(tagEnd !== -1) {
+                    currentHTML += htmlString.substring(i, tagEnd + 1);
+                    i = tagEnd + 1;
+                } else break;
+            }
+            if (i < htmlString.length) {
+                currentHTML += htmlString.charAt(i);
+                i++;
+                charsToAdd--;
+            } else {
+                break;
+            }
+        }
+
+        element.innerHTML = currentHTML + '<span style="opacity:0.6; animation: blink 1s infinite;">█</span>';
+
+        if(i >= htmlString.length) endTyping();
+    }, 16); 
 }
 
-function buildReport() {
-    let rep = "<p>La guerra ha concluido. El análisis macroeconómico de su gestión es el siguiente:</p><hr>";
-    
-    if(stats.mil >= 70) rep += "<p><b>ESTATUS BÉLICO: Súperpotencia.</b> El esfuerzo económico logró proveer una victoria militar aplastante.</p>";
-    else if (stats.mil >= 40) rep += "<p><b>ESTATUS BÉLICO: Victoria Dependiente.</b> Sobrevivimos, pero el peso de la guerra fue financiado por el exterior.</p>";
-    else rep += "<p><b>ESTATUS BÉLICO: Colapso.</b> Las malas decisiones económicas dejaron al ejército inoperante. La isla quedó devastada.</p>";
-
-    if(stats.inf >= 70) rep += "<p><b>INFLACIÓN: Hiperinflación.</b> La emisión descontrolada licuó los ahorros de toda la clase media y trabajadora.</p>";
-    else rep += "<p><b>INFLACIÓN: Controlada.</b> Logró una hazaña histórica al financiar una guerra sin destruir el valor de la moneda local.</p>";
-
-    if(stats.debt >= 70) rep += "<p><b>DEUDA SOBERANA: Vasallaje Financiero.</b> El país queda atado por 50 años a la deuda estadounidense. Ha perdido su imperio económico.</p>";
-    else rep += "<p><b>DEUDA SOBERANA: Sostenible.</b> Protegió las reservas de oro y la balanza de pagos. El país puede reconstruirse sin depender de potencias.</p>";
-
-    if(stats.moral >= 70) rep += "<p><b>SOCIEDAD: El Nuevo Contrato.</b> El Estado de Bienestar está asegurado. La población está lista para trabajar en paz.</p>";
-    else rep += "<p><b>SOCIEDAD: Fractura Total.</b> La austeridad y el hambre han generado un caldo de cultivo para rebeliones inminentes.</p>";
-
-    return rep;
-}
+let nextPhaseId = null;
+let choicesFadeTimeout = null;
 
 function renderPhase(id) {
-    if(id === "intro") { stats = { moral: 80, inf: 10, debt: 20, mil: 20 }; updateUI(); }
-    
+    if(id === 'intro') { 
+        playerScore = 0; 
+        playerDeviations = []; 
+        let music = document.getElementById('bg-music');
+        if (music) { music.currentTime = 0; music.play().catch(e => {}); }
+    }
+
     let p = storyTree[id];
-    playSound('paper');
+    clearTimeout(choicesFadeTimeout);
+    
+    if(id === "evaluation") {
+        playAmbient("t-postwar");
+    } else {
+        playAmbient(p.yearId);
+    }
+
+    document.getElementById('ui-photo').style.animation = 'none';
+    document.getElementById('global-stamp').classList.remove('global-stamp-animate');
+
+    document.querySelectorAll('.timeline-step').forEach(el => el.classList.remove('active'));
+    let highlightYear = (id === "evaluation") ? "t-1945" : p.yearId;
+    if(highlightYear) document.getElementById(highlightYear).classList.add('active');
 
     document.getElementById('ui-date').innerText = p.date;
-    document.getElementById('ui-title').innerText = p.title;
+    let titleEl = document.getElementById('ui-title');
+    decryptText(titleEl, p.title);
     
-    let imgEl = document.getElementById('ui-photo');
-    let boxEl = document.getElementById('ui-photo-box');
-    boxEl.style.display = 'block'; 
-    imgEl.style.display = 'block';
+    let photoEl = document.getElementById('ui-photo');
+    let photoBox = document.getElementById('ui-photo-box');
+    let scanLine = document.getElementById('ui-fax-scan');
+    photoBox.style.display = '';
+    photoEl.onerror = () => { photoBox.style.display = 'none'; };
+    photoEl.alt = p.title || "Documento histórico";
+    photoEl.src = p.photo;
+    void photoEl.offsetWidth; 
+    photoEl.style.animation = 'photoReveal 2.4s ease-in-out forwards';
+    scanLine.style.animation = 'none';
+    void scanLine.offsetWidth;
+    scanLine.style.animation = 'faxScanMove 2.4s ease-in-out forwards';
     
-    // Incrementar el ID de fase vigente para asegurar que las fotos de fases anteriores se cancelen
-    currentPhotoRequestId++;
-    loadPhotoWithRetry(imgEl, p.photo, currentPhotoRequestId, 0);
-    
-    document.getElementById('alt-tag').style.display = p.altHistory ? "inline-block" : "none";
+    document.getElementById('ui-photo-caption').innerText = p.caption;
 
-    if(id === "final") document.getElementById('ui-text').innerHTML = buildReport();
-    else document.getElementById('ui-text').innerHTML = p.text;
+    let textEl = document.getElementById('ui-text');
+    let dilemmaTitle = document.getElementById('ui-dilemma-title');
+    let choicesBox = document.getElementById('choices-box');
 
-    let box = document.getElementById('choices-box');
-    box.innerHTML = "";
-    
-    p.choices.forEach((c, idx) => {
+    dilemmaTitle.style.display = 'none'; dilemmaTitle.style.opacity = '0';
+    choicesBox.style.display = 'none'; choicesBox.style.opacity = '0';
+
+    if(id === "evaluation") {
+        let rankStr = ""; let descStr = ""; let colorStr = "";
+        if (playerScore === 5) { rankStr = "ESTRATEGA MAGISTRAL"; descStr = "Has comprendido a la perfección las tensiones geopolíticas de la época. Tus decisiones reflejan el curso exacto que tomó la historia real."; colorStr = "#2ecc71"; } 
+        else if (playerScore >= 3) { rankStr = "GABINETE DIVIDIDO"; descStr = "Has acertado en la mayoría de las encrucijadas, aunque dudaste ante el abismo. Comprendes el panorama general del conflicto."; colorStr = "#f39c12"; } 
+        else { rankStr = "LIDERAZGO CUESTIONABLE"; descStr = "Tus decisiones se han desviado drásticamente de los eventos reales. En la realidad, este camino habría alterado profundamente el destino de la humanidad."; colorStr = "#e74c3c"; }
+
+        let alternateHistoryHTML = "";
+        if (playerDeviations.length > 0) {
+            alternateHistoryHTML = `<div class="alt-history-box"><div class="alt-history-title">Líneas Temporales Alternativas Creadas:</div><ul class="alt-history-list">${playerDeviations.map(dev => `<li>${dev}</li>`).join('')}</ul></div>`;
+        }
+
+        let scorePanel = `<div style="border: 2px dashed ${colorStr}; padding: 20px; margin-top: 30px; text-align: center; background: rgba(0,0,0,0.05);"><div style="font-family: 'Special Elite', cursive; font-size: 1.2em; margin-bottom: 10px; color: #444;">EVALUACIÓN DE GESTIÓN: ${playerScore} / 5 ACIERTOS</div><div style="font-family: 'Oswald', sans-serif; font-size: 2.2em; color: ${colorStr}; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase;">${rankStr}</div><div style="font-family: 'Courier Prime', monospace; font-size: 1.1em; color: #222; text-align: justify; text-shadow: 0.3px 0.3px 1px rgba(0,0,0,0.15);">${descStr}</div>${alternateHistoryHTML}</div>`;
+        
         let btn = document.createElement('button');
         btn.className = 'decision-btn';
-        let html = `<span class="btn-title">SELLO: ${c.title}</span>`;
-        if(c.hint) html += `<span class="btn-hint">${c.hint}</span>`;
-        
-        html += `<div class="stamp-effect" id="stamp-${idx}">APROBADO</div>`;
-        btn.innerHTML = html;
+        btn.innerHTML = `<span class="btn-text" style="text-align:center;">ARCHIVAR Y REINICIAR SIMULACIÓN</span>`;
+        btn.onclick = () => { btn.style.pointerEvents = 'none'; enterFullScreen(); renderPhase('intro'); };
+        choicesBox.innerHTML = ""; choicesBox.appendChild(btn);
 
-        btn.onclick = () => {
-            enterFullScreen();
-            playSound('stamp');
-            document.getElementById(`stamp-${idx}`).classList.add('stamp-animate');
+        typeWriterHTML(textEl, p.text + scorePanel, 16, () => {
+            choicesBox.style.display = 'flex';
+            // FORZAR REPAINT para evitar botones fantasma
+            void choicesBox.offsetWidth;
+            choicesFadeTimeout = setTimeout(() => { choicesBox.style.opacity = '1'; }, 10);
+        });
+
+    } else {
+        choicesBox.innerHTML = "";
+        let shuffledChoices = shuffleArray(p.choices.slice());
+        shuffledChoices.forEach((c) => {
+            let btn = document.createElement('button');
+            btn.className = 'decision-btn';
+            btn.innerHTML = `<span class="btn-posture">REMITENTE: ${c.posture}</span><span class="btn-text">${c.text}</span>`;
             
-            if(c.impact) {
-                stats.moral += c.impact.moral; stats.inf += c.impact.inf;
-                stats.debt += c.impact.debt; stats.mil += c.impact.mil;
-                updateUI();
-            }
+            btn.onclick = () => {
+                document.querySelectorAll('.decision-btn').forEach(b => b.style.pointerEvents = 'none');
+                enterFullScreen(); 
+                
+                if(c.correct) { playerScore++; } else { playerDeviations.push(c.consequence); }
+                let feedbackTag = c.correct ? `<div class="feedback-tag feedback-correct">[✔ COINCIDENCIA HISTÓRICA CONFIRMADA]</div><br>` : `<div class="feedback-tag feedback-incorrect">[✖ DESVIACIÓN HISTÓRICA DETECTADA]</div><br>`;
+                
+                if (id === "atomic" && c.correct) {
+                    let flash = document.getElementById('nuke-flash');
+                    flash.classList.add('flash-anim');
+                    
+                    setTimeout(() => { flash.classList.remove('flash-anim'); }, 7000); 
+                    
+                    const ctx = getAudioContext();
+                    if(ctx && noiseBuffer) {
+                        let n = ctx.createBufferSource(); n.buffer = noiseBuffer; n.loop = true;
+                        let f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 150;
+                        let g = ctx.createGain(); g.gain.setValueAtTime(4.0, ctx.currentTime);
+                        
+                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 6.5);
+                        n.connect(f); f.connect(g); g.connect(ctx.destination);
+                        n.start(); n.stop(ctx.currentTime + 6.5);
+                    }
+                    
+                    let music = document.getElementById('bg-music');
+                    if(music) music.volume = 0.1;
+                    
+                    setTimeout(() => {
+                        if(music) music.volume = 0.7;
+                        showVerdictModal();
+                    }, 5000); 
+                    
+                } else {
+                    playSound('stamp');
+                    let container = document.getElementById('game-container');
+                    container.classList.remove('shake-effect'); void container.offsetWidth; container.classList.add('shake-effect');
+                    let stamp = document.getElementById('global-stamp'); stamp.classList.add('global-stamp-animate');
 
-            setTimeout(() => {
-                document.getElementById('news-headline').innerText = c.news;
-                document.getElementById('news-subhead').innerText = c.sub;
-                document.getElementById('newspaper-modal').style.display = 'flex';
-                nextPhaseId = c.next;
-            }, 500);
-        };
-        box.appendChild(btn);
-    });
+                    setTimeout(() => {
+                        showVerdictModal();
+                    }, 2200);
+                }
+
+                function showVerdictModal() {
+                    let modalContent = document.getElementById('verdict-box-content');
+                    modalContent.style.animation = 'none'; void modalContent.offsetWidth; modalContent.style.animation = 'spinIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    
+                    let vBox = document.getElementById('verdict-text');
+                    vBox.innerHTML = '';
+                    document.getElementById('verdict-modal').style.display = 'flex';
+                    document.getElementById('verdict-box-content').scrollTop = 0;
+                    document.getElementById('next-phase-btn').style.pointerEvents = '';
+                    nextPhaseId = p.next;
+
+                    typeWriterHTML(vBox, feedbackTag + p.verdict, 16, null);
+                }
+            };
+            choicesBox.appendChild(btn);
+        });
+
+        typeWriterHTML(textEl, p.text, 16, () => {
+            dilemmaTitle.innerText = p.dilemma;
+            dilemmaTitle.style.display = 'block';
+            choicesBox.style.display = 'flex';
+            
+            // FORZAR REPAINT PARA CELULARES
+            void choicesBox.offsetWidth;
+            
+            choicesFadeTimeout = setTimeout(() => {
+                dilemmaTitle.style.opacity = '1';
+                choicesBox.style.opacity = '1';
+                playSound('paper'); 
+            }, 10);
+        });
+    }
 }
 
 function nextPhase() {
-    document.getElementById('newspaper-modal').style.display = 'none';
+    let btn = document.getElementById('next-phase-btn');
+    if (btn.style.pointerEvents === 'none') return; // evita el doble toque
+    btn.style.pointerEvents = 'none';
+
+    playSound('paper');
+    document.getElementById('verdict-modal').style.display = 'none';
     document.getElementById('dossier-wrapper').scrollTop = 0;
     
     let paper = document.getElementById('paper-doc');
@@ -520,11 +1085,6 @@ function nextPhase() {
     
     renderPhase(nextPhaseId);
 }
-
-window.onload = () => {
-    updateUI();
-    renderPhase('intro');
-};
 </script>
 </body>
 </html>
