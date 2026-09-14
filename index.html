@@ -581,8 +581,6 @@ function enterFullScreen() {
         let docElm = document.documentElement;
         if (docElm.requestFullscreen) docElm.requestFullscreen().catch(()=>{});
         else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
-        else if (docElm.mozRequestFullScreen) docElm.mozRequestFullScreen();
-        else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
     } catch (e) {}
 }
 
@@ -731,7 +729,7 @@ function playAmbient(yearId) {
                 surf.start();
                 ambSources.push(surf);
 
-                ambGain.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 2);
+                ambGain.gain.setValueAtTime(1.0, ctx.currentTime);
 
                 let waveCycle = () => {
                     let now = ctx.currentTime;
@@ -768,12 +766,12 @@ function playAmbient(yearId) {
 
             let tinnitus = ctx.createOscillator();
             tinnitus.type = 'sine'; tinnitus.frequency.value = 3800;
-            let tinGain = ctx.createGain(); tinGain.gain.value = 0.15;
+            let tinGain = ctx.createGain(); tinGain.gain.value = 0.04; // Tinnitus más seguro y sutil
             tinnitus.connect(tinGain); tinGain.connect(ambGain);
             tinnitus.start();
             ambSources.push(tinnitus);
 
-            ambGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 3); 
+            ambGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 3); // Volumen general nivelado
             
         } else if (yearId === "t-postwar") { 
             // Silencio
@@ -906,7 +904,6 @@ function typeWriterHTML(element, htmlString, speed, callback) {
 }
 
 let nextPhaseId = null;
-let choicesFadeTimeout = null;
 
 function renderPhase(id) {
     if(id === 'intro') { 
@@ -917,7 +914,6 @@ function renderPhase(id) {
     }
 
     let p = storyTree[id];
-    clearTimeout(choicesFadeTimeout);
     
     if(id === "evaluation") {
         playAmbient("t-postwar");
@@ -981,7 +977,7 @@ function renderPhase(id) {
             choicesBox.style.display = 'flex';
             // FORZAR REPAINT para evitar botones fantasma
             void choicesBox.offsetWidth;
-            choicesFadeTimeout = setTimeout(() => { choicesBox.style.opacity = '1'; }, 10);
+            setTimeout(() => { choicesBox.style.opacity = '1'; }, 10);
         });
 
     } else {
@@ -999,6 +995,7 @@ function renderPhase(id) {
                 if(c.correct) { playerScore++; } else { playerDeviations.push(c.consequence); }
                 let feedbackTag = c.correct ? `<div class="feedback-tag feedback-correct">[✔ COINCIDENCIA HISTÓRICA CONFIRMADA]</div><br>` : `<div class="feedback-tag feedback-incorrect">[✖ DESVIACIÓN HISTÓRICA DETECTADA]</div><br>`;
                 
+                // --- CLÍMAX VISUAL DE LA BOMBA ATÓMICA ---
                 if (id === "atomic" && c.correct) {
                     let flash = document.getElementById('nuke-flash');
                     flash.classList.add('flash-anim');
@@ -1009,7 +1006,7 @@ function renderPhase(id) {
                     if(ctx && noiseBuffer) {
                         let n = ctx.createBufferSource(); n.buffer = noiseBuffer; n.loop = true;
                         let f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 150;
-                        let g = ctx.createGain(); g.gain.setValueAtTime(4.0, ctx.currentTime);
+                        let g = ctx.createGain(); g.gain.setValueAtTime(2.0, ctx.currentTime); // CUIDADO DE LOS PARLANTES BAJADO A 2.0
                         
                         g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 6.5);
                         n.connect(f); f.connect(g); g.connect(ctx.destination);
@@ -1060,7 +1057,7 @@ function renderPhase(id) {
             // FORZAR REPAINT PARA CELULARES
             void choicesBox.offsetWidth;
             
-            choicesFadeTimeout = setTimeout(() => {
+            setTimeout(() => {
                 dilemmaTitle.style.opacity = '1';
                 choicesBox.style.opacity = '1';
                 playSound('paper'); 
